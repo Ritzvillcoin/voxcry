@@ -1,21 +1,22 @@
 const features = [
   {
-    title: "Personalized LoRA",
-    body: "We fine-tune on your text samples (hooks, emails, replies) so outputs match your tone."
+    title: "AI-Powered Creator Screening",
+    body: "Instant analysis of niche, content style, engagement health, and posting behavior."
   },
   {
-    title: "Live Knowledge",
-    body: "Connect a simple FAQ/KB so answers stay fresh without retraining."
+    title: "Brand-Fit Intelligence",
+    body: "Every creator is evaluated through AI-driven criteria — ensuring perfect alignment with your product category, UGC style, and campaign goals."
   },
   {
-    title: "Fast & Private",
-    body: "TinyLlama + adapters for speed and low cost. Your data stays isolated."
+    title: "Fast, Private, Accurate",
+    body: "No scraping or logins required. All insights are generated with isolated AI models."
   },
   {
-    title: "Multi-Use",
-    body: "Generate hooks, emails, and customer support replies from one model."
+    title: "Built for UGC Teams & Agencies",
+    body: "Use VoxCry to evaluate creators, build curated lists, and share ready-to-use screening reports with clients or internal teams."
   }
 ];
+
 
 export default function FeatureGrid() {
   return (

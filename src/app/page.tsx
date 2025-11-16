@@ -6,6 +6,7 @@ import Pricing from "./components/Pricing";
 import CTA from "./components/CTA";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
+import Generator from "./components/Generator";
 
 export default function Home() {
   return (
@@ -13,9 +14,9 @@ export default function Home() {
       <Nav />
       <main>
         <Hero />
+         { /*<Generator /> */}
         <Logos />
         <FeatureGrid />
-        <Pricing />
         <CTA />
         <Contact />
       </main>
