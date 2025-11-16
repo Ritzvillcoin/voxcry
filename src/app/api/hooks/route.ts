@@ -4,8 +4,8 @@ export async function POST(req: NextRequest) {
   console.log("SERVER KEY:", process.env.HF_API_URL);
 
   const body = await req.json().catch(() => ({}));
-  const clientKey = req.headers.get("x-api-key");
-  const systemKey = process.env.VOXCRY_API_KEY;
+  /*const clientKey = req.headers.get("x-api-key");
+  const systemKey = process.env.VOXCRY_API_KEY;*/
 
   /*if (!clientKey || clientKey !== systemKey) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

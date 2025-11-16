@@ -41,11 +41,14 @@ export default function Generator() {
       } else {
         setAnswers(["No answer generated."]);
       }
-    } catch (err: any) {
-      setError(err.message || "Unknown error");
-    } finally {
-      setLoading(false);
-    }
+   } catch (err: unknown) {
+  if (err instanceof Error) {
+    setError(err.message);
+  } else {
+    setError("Unknown error");
+  }
+}
+
   }
 
   return (
