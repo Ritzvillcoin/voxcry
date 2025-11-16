@@ -1,3 +1,4 @@
+import Link from "next/link";
 export const metadata = {
   title: "Terms of Service — VoxCry",
   description: "Terms of Service for VoxCry AI-powered creator screening.",
@@ -67,7 +68,9 @@ export default function TermsPage() {
 
         <h2>9. Contact</h2>
         <p>
-          If you have questions, email <span className="underline">hello@voxcry.com</span>.
+         <Link href="/#contact" className="underline hover:text-gray-300">
+            contact us
+          </Link>.
         </p>
       </div>
     </section>
