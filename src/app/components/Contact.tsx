@@ -71,7 +71,7 @@ export default function Contact() {
             <textarea
               name="message"
               rows={4}
-              placeholder="What do you want to train? e.g., hooks, support replies, both"
+              placeholder=" "
               className="mt-1 w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2"
             />
           </div>

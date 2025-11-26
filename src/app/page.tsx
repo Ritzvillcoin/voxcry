@@ -14,7 +14,7 @@ export default function Home() {
       <Nav />
       <main>
         <Hero />
-         { /*<Generator /> */}
+        <Generator /> 
         <Logos />
         <FeatureGrid />
         <CTA />
