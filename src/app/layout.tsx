@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import GoogleTagManager from "./components/GoogleTagManager";
 
 export const metadata: Metadata = {
   title: "AI-Powered creator screening",
@@ -10,33 +11,34 @@ export const metadata: Metadata = {
     "AI creator vetting",
     "AI creator screening",
     "AI influencer vetting",
-    "AI influencer screening",
+    "free AI influencer screening",
     "creator verification tool",
     "influencer verification tool",
     "AI creator analysis",
     "AI UGC vetting",
     "AI brand safety check",
-    "AI creator risk scoring",
+    "free AI creator risk scoring",
     "fake follower detection tool",
     "creator authenticity checker",
     "creator audience demographics",
     "AI brand-creator matching",
     "creator content quality scoring",
-    "AI creator insights",
+    "free AI creator insights",
     "TikTok creator analysis tool",
     "TikTok creator screening AI",
     "UGC content analysis AI",
     "content style classification AI",
     "creator hook analysis",
-    "creator performance scoring",
+    "free creator performance scoring",
     "creator performance analyzer",
-    "engagement quality analysis",
+    "free engagement quality analysis",
     "influencer transparency tool",
     "audience authenticity check",
     "creator niche classification AI",
     "brand safety for creators",
     "UGC creator analysis",
     "creator vetting",
+    "free screened Tiktok creators",
     "AI creator insights platform",
     "AI content breakdown tool",
     "automated creator vetting system",
@@ -48,7 +50,15 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+       
+       <noscript>
+        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NG2KX8JN"
+height="0" width="0" style={{display:"none",visibility:"hidden"}}></iframe>
+       </noscript>
+        <GoogleTagManager />
+        {children}
+        </body>
     </html>
   );
 }
