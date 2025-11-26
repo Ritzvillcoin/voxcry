@@ -52,6 +52,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+      {/* ⭐ Add your custom <head> here */}
+      <head>
+        <meta
+          name="google-adsense-account"
+          content="ca-pub-6091519166758261"
+        />
+      </head>
       <body>
        <AdsenseScript />
         <GoogleTagManager />
