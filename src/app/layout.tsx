@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import GoogleTagManager from "./components/GoogleTagManager";
+import AdsenseScript from "./components/AdsenseScript";
+import StickyAd from "./components/StickyAd";
 
 export const metadata: Metadata = {
   title: "AI-Powered creator screening",
@@ -51,12 +53,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
-       
+       <AdsenseScript />
+        <GoogleTagManager />
        <noscript>
         <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NG2KX8JN"
 height="0" width="0" style={{display:"none",visibility:"hidden"}}></iframe>
        </noscript>
-        <GoogleTagManager />
+       <StickyAd />
         {children}
         </body>
     </html>

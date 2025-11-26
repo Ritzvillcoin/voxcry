@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import AdUnit from "./AdUnit"; 
 
 /* -----------------------------------------------------
    🔒 Strong TypeScript Models
@@ -112,8 +113,6 @@ export default function Generator() {
   ----------------------------------------------------- */
   return (
     <section className="mx-auto my-10 max-w-5xl px-4 text-center text-white">
-      <h2 className="text-3xl font-bold">Search Micro Creators</h2>
-
       {/* INPUT + CATEGORY */}
       <div className="mt-6 flex items-end">
         {/* Input */}
@@ -158,7 +157,7 @@ export default function Generator() {
       </div>
 
       {error && <p className="mt-4 text-red-400">{error}</p>}
-
+     
       {/* RESULTS */}
       <AnimatePresence>
         {results.length > 0 && (
@@ -246,6 +245,7 @@ export default function Generator() {
           </motion.div>
         )}
       </AnimatePresence>
+     
     </section>
   );
 }
