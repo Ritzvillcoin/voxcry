@@ -1,11 +1,18 @@
-import secret from "@/data/creators.json";
 import { NextResponse } from "next/server";
-export async function GET(req: Request) {
-  const token = req.headers.get("x-api-key");
+import data from "@/data/creators.json";
 
-  if (token !== process.env.MY_SECRET_KEY) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export async function GET(req: Request) {
+  const apiKey = req.headers.get("x-api-key");
+
+  if (apiKey !== process.env.MY_SECRET_KEY) {
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      { status: 401 }
+    );
   }
 
-  return NextResponse.json(secret);
+  return NextResponse.json(
+    { creators: data },
+    { status: 200 }
+  );
 }
