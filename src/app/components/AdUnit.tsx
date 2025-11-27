@@ -33,11 +33,11 @@ export default function AdUnit({ slot }: AdUnitProps) {
         display: "block",
         width: "100%",
         minWidth: 320,
-        minHeight: 60, // reasonable default (banner-height)
+        height: 60, // reasonable default (banner-height)
       }}
       data-ad-client="ca-pub-6091519166758261"
       data-ad-slot={slot}
-      data-ad-format="auto"
+      data-ad-format=""
       data-full-width-responsive="true"
     />
   );

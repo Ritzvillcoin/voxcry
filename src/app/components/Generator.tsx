@@ -112,7 +112,8 @@ export default function Generator() {
      🎨 UI
   ----------------------------------------------------- */
   return (
-    <section className="mx-auto my-10 max-w-5xl px-4 text-center text-white">
+    <section className="mx-auto mt-10 max-w-5xl px-4 text-center text-white mb-0">
+
       {/* INPUT + CATEGORY */}
       <div className="mt-6 flex items-end">
         {/* Input */}

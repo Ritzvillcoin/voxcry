@@ -16,8 +16,8 @@ export default function Home() {
         <Hero />
         <Generator /> 
         <Logos />
-        <FeatureGrid />
-        <CTA />
+        {/*<FeatureGrid />
+        <CTA />*/}
         <Contact />
       </main>
       <Footer />

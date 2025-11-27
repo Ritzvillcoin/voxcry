@@ -66,8 +66,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NG2KX8JN"
 height="0" width="0" style={{display:"none",visibility:"hidden"}}></iframe>
        </noscript>
-       <StickyAd />
+       
+        <div className="min-h-screen pb-[120px] md:pb-[160px]">
         {children}
+        </div>
+        <StickyAd />
         </body>
     </html>
   );

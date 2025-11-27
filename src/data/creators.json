@@ -323,8 +323,60 @@
 "performance_health":"excellent",
 "risk_score":"Low",
 "notes":"High-performing entertainment news creator with strong organic spikes and an older US-heavy audience. Best for awareness campaigns targeting gossip, lifestyle, or reaction-driven niches."
-}
+},
+{
+"creator_name":"GEOVANNA",
+"creator_handle":"@g3ovannaac._",
+"tiktok_link":"https://tiktok.com/@g3ovannaac._",
+"followers":"43K",
+"posting_frequency":"frequent",
+"category":"sales",
+"niche":"Selfie, Lip Sync, Beauty & Personal Care, Women’s Clothing, Tech & Electronics, Appliances",
+"region":"United States",
+"performance_health":"mixed",
+"risk_score":"Medium",
+"notes":"Beauty-focused creator showing makeup, hair, and personal care products with occasional branded content; strong with female 18–24 audiences and suitable for beauty or lifestyle UGC-style sales campaigns."
+},
+{
+"creator_name":"jacknauau",
+"creator_handle":"@beefingwitwhobtchnotyu",
+"tiktok_link":"https://tiktok.com/@beefingwitwhobtchnotyu",
+"followers":"91.9K",
+"posting_frequency":"daily",
+"category":"awareness",
+"niche":"Fitness, Daily Life, Traditional Sports",
+"region":"United States",
+"performance_health":"good",
+"risk_score":"Low",
+"notes":"Fitness-leaning lifestyle creator with strong 25–34 male audience and consistent organic views; ideal for awareness campaigns in fitness, sportswear, or lifestyle brands targeting active young men."
+},
+{"creator_name":"beefingwithwhobtchn...","creator_handle":"beefingwithwhobtchnotyu","tiktok_link":"https://tiktok.com/@beefingwithwhobtchnotyu","followers":"68K","posting_frequency":"daily","category":"sales","niche":"Love, Romantic Relationships, Daily Life, Home & Garden","region":"United States","performance_health":"good","risk_score":"Low","notes":"Lifestyle and home-focused creator with frequent product integrations and branded content. Strong fit for home, decor, cleaning, and daily-life brands targeting young female audiences."}
+,
+{
+"creator_name": "howsweetthesound",
+"creator_handle": "@howsweetthesound",
+"tiktok_link": "https://tiktok.com/@howsweetthesound",
+"followers": "90.4K",
+"posting_frequency": "daily",
+"category": "awareness",
+"niche": "Travel, Daily Life",
+"region": "United States",
+"performance_health": "good",
+"risk_score": "Low",
+"notes": "Travel and lifestyle creator with strong female 18–34 audience; well-suited for tourism, hospitality, and lifestyle brand campaigns."
+},
+{"creator_name":"stephanie","creator_handle":"@mirandafannyyy","tiktok_link":"https://tiktok.com/@mirandafannyyy","followers":"35K","posting_frequency":"every 2-3 days","category":"sales","niche":"Tech Products & Tests","region":"United States","performance_health":"good","risk_score":"Low","notes":"Creates product-focused tech and phone-case content with strong visual demos; ideal for UGC-style product showcases. Audience skews young female and highly engaged with tech accessories."}
+,
+{"creator_name":"Michelle","creator_handle":"@lamdcoloree","tiktok_link":"https://tiktok.com/@lamdcoloree","followers":"222.5K","posting_frequency":"every 1-3 days","category":"lead_gen","niche":"Outfits, Health & Wellness, Daily Life","region":"Canada","performance_health":"good","risk_score":"Low","notes":"Medical professional creating mental health, sexual health, and lifestyle education content with strong audience trust. Best suited for public health, wellness, and educational campaigns targeting young adult females."}
+,
+{"creator_name":"Sundas","creator_handle":"@sundaskhalidd","tiktok_link":"https://tiktok.com/@sundaskhalidd","followers":"65.5K","posting_frequency":"frequent","category":"lead_gen","niche":"Tech & AI tips","region":"","performance_health":"good","risk_score":"Low","notes":"Creates clear, structured educational content on data science, tech careers, and AI. Strong fit for tech education, software tools, and career-skills campaigns targeting aspiring data and tech professionals."}
 ]
+
+
+
+
+
+
 
 
 
