@@ -62,7 +62,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
        <AdsenseScript />
-        <AdsenseScript />
+       <GoogleAnalytics />
         <div className="min-h-screen pb-[120px] md:pb-[160px]">
         {children}
         </div>
