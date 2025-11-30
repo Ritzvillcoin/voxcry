@@ -15,13 +15,19 @@ export default function Nav() {
             href="https://forms.gle/RECyohJA1HSMTspr5"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-gray-200 hover:text-white transition"
+            className="button-primary"
           >
             For Brands
           </a>
+          <Link 
+            href="/creator-submit"
+            className="button-primary"
+          >
+            For Creators
+          </Link>
 
-          {/* Existing Get Started button */}
-          <Link href="#contact" className="button-primary">Get Started</Link>
+          {/* Existing Get Started button 
+          <Link href="#contact" className="button-primary">Get Started</Link> */}
         </div>
       </div>
     </nav>
