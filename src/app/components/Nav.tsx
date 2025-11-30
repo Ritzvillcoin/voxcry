@@ -8,8 +8,19 @@ export default function Nav() {
           <span className="text-xl font-semibold">Voxcry</span>
           <span className="rounded bg-brand-500/20 px-2 py-0.5 text-xs text-brand-200"></span>
         </Link>
-        <div className="flex items-center gap-3">
-          {/*<Link href="#pricing" className="button-outline">Pricing</Link>*/}
+
+        <div className="flex items-center gap-4">
+          {/* NEW: For Brands link (opens Google Form in new tab) */}
+          <a
+            href="https://forms.gle/RECyohJA1HSMTspr5"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-gray-200 hover:text-white transition"
+          >
+            For Brands
+          </a>
+
+          {/* Existing Get Started button */}
           <Link href="#contact" className="button-primary">Get Started</Link>
         </div>
       </div>
