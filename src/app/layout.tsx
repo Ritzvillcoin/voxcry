@@ -4,6 +4,7 @@ import "./globals.css";
 import GoogleTagManager from "./components/GoogleTagManager";
 import AdsenseScript from "./components/AdsenseScript";
 import StickyAd from "./components/StickyAd";
+import GoogleAnalytics from "./components/GoogleAnalytics";
 
 export const metadata: Metadata = {
   title: "AI-Powered creator screening",
@@ -61,12 +62,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
        <AdsenseScript />
-        <GoogleTagManager />
-       <noscript>
-        <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NG2KX8JN"
-height="0" width="0" style={{display:"none",visibility:"hidden"}}></iframe>
-       </noscript>
-       
+        <AdsenseScript />
         <div className="min-h-screen pb-[120px] md:pb-[160px]">
         {children}
         </div>
