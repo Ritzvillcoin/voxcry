@@ -8,8 +8,14 @@ export default function Nav() {
           <span className="text-xl font-semibold">Voxcry</span>
           <span className="rounded bg-brand-500/20 px-2 py-0.5 text-xs text-brand-200"></span>
         </Link>
-
+         
         <div className="flex items-center gap-4">
+          <Link 
+            href="/top-creators"
+            className="button-primary"
+          >
+           Top Creators
+          </Link>
           {/* NEW: For Brands link (opens Google Form in new tab) */}
           <a
             href="https://forms.gle/RECyohJA1HSMTspr5"
