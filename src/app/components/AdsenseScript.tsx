@@ -8,7 +8,7 @@ export default function AdsenseScript() {
       id="adsense-script"
       async
       strategy="beforeInteractive"
-      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6091519166758261"
+      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7162370150732704"
       crossOrigin="anonymous"
     />
   );

@@ -57,7 +57,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <meta
           name="google-adsense-account"
-          content="ca-pub-6091519166758261"
+          content="ca-pub-7162370150732704"
         />
       </head>
       <body>

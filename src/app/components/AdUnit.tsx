@@ -35,7 +35,7 @@ export default function AdUnit({ slot }: AdUnitProps) {
         minWidth: 320,
         height: 60, // reasonable default (banner-height)
       }}
-      data-ad-client="ca-pub-6091519166758261"
+      data-ad-client="ca-pub-7162370150732704"
       data-ad-slot={slot}
       data-ad-format=""
       data-full-width-responsive="true"
