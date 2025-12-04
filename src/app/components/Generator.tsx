@@ -45,8 +45,11 @@ function filterCreators(
   const isHandle = lower.startsWith("@");
 
   // First filter by category
-  const list = creators.filter((c) => c.category === category);
-
+  //const list = creators.filter((c) => c.category === category);
+  const list =
+    category === "all"
+      ? creators
+      : creators.filter((c) => c.category === category);
   if (isHandle) {
     return list.filter(
       (c) => c.creator_handle?.toLowerCase() === lower
@@ -64,7 +67,7 @@ function filterCreators(
 ----------------------------------------------------- */
 export default function Generator() {
   const [query, setQuery] = useState("");
-  const [category, setCategory] = useState("awareness");
+  const [category, setCategory] = useState("all");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<Creator[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -139,6 +142,7 @@ export default function Generator() {
             onChange={(e) => setCategory(e.target.value)}
             className="w-full h-[44px] border border-white/10 bg-black/40 px-3 text-white rounded-r-lg"
           >
+            <option value="all">All</option>
             <option value="awareness">Brand Awareness</option>
             <option value="lead_gen">Lead Generation</option>
             <option value="sales">Sales/Conversion</option>
