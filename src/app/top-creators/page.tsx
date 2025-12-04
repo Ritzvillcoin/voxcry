@@ -26,5 +26,21 @@ export const metadata = {
 import TopCreatorsClient from "./TopCreatorsClient";
 
 export default function Page() {
-  return <TopCreatorsClient />;
+  return  (
+    <div className="px-4">
+      {/* 🔍 SEO Text Block (Server-rendered, indexable) */}
+      <header className="mb-10 text-center">
+        <h1 className="text-4xl font-bold tracking-tight">
+          Top TikTok Creators Vetted by VoxCry
+        </h1>
+         <p className="mt-3 text-gray-400 text-sm max-w-xl mx-auto">
+          Updated regularly with creators across awareness, lead generation, and
+          sales categories — based exclusively on visible performance, not hype.
+        </p>
+      </header>
+
+      {/* Client Component (JS only) */}
+      <TopCreatorsClient />
+    </div>
+  );
 }

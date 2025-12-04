@@ -56,10 +56,10 @@ export default function TopCreatorsClient() {
 
   return (
     <section className="mx-auto mt-10 max-w-5xl px-4 text-center text-white mb-0">
-      <h1 className="text-4xl font-extrabold">Top Creators</h1>
+      {/*<h1 className="text-4xl font-extrabold">Top Creators</h1>
       <p className="mt-3 text-gray-400 max-w-xl mx-auto">
         Curated list of top-performing TikTok creators vetted by VoxCry AI.
-      </p>
+      </p> */}
 
       {loading && <p className="mt-8 text-gray-400">Loading creators…</p>}
       {error && <p className="mt-8 text-red-400">{error}</p>}
