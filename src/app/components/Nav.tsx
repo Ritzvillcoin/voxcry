@@ -10,12 +10,7 @@ export default function Nav() {
         </Link>
          
         <div className="flex items-center gap-4">
-          <Link 
-            href="/top-creators"
-            className="button-primary"
-          >
-           Top Creators
-          </Link>
+         
           {/* NEW: For Brands link (opens Google Form in new tab) */}
           <a
             href="https://forms.gle/RECyohJA1HSMTspr5"
@@ -32,8 +27,8 @@ export default function Nav() {
             For Creators
           </Link>
 
-          {/* Existing Get Started button 
-          <Link href="#contact" className="button-primary">Get Started</Link> */}
+          {/* Existing Get Started button */}
+          <Link href="#contact" className="button-primary">Contact</Link>
         </div>
       </div>
     </nav>

@@ -5,7 +5,7 @@ export default function Hero() {
         AI-Powered <span className="text-brand-400">creator screening for modern brands.</span>
       </h1>
       <p className="mx-auto mt-5 max-w-2xl text-lg text-[var(--muted)]">
-       VoxCry connects brands with the right creators through simple, accurate AI analysis.
+       VoxCry connects brands with the right creators through simple, accurate AI analysis. 
       </p>
       {/*!--<div className="mt-8 flex items-center justify-center gap-3">
         <a href="#pricing" className="button-primary">See Pricing</a>

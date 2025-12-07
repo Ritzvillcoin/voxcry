@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import AdUnit from "./AdUnit"; 
+// import AdUnit from "./AdUnit"; // keep / remove depending on if you use it
 
 /* -----------------------------------------------------
    🔒 Strong TypeScript Models
@@ -26,156 +26,122 @@ interface ApiResponse {
   creators: Creator[]; // Expecting your API to return { creators: [...] }
 }
 
-/* -----------------------------------------------------
-   🔍 Helper: Normalize query formatting
------------------------------------------------------ */
-function normalizeInput(input: string): string {
-  return input.trim().toLowerCase();
+interface GeneratorProps {
+  /** Niche to filter by, e.g. "beauty", "fitness", "amazon" */
+  niche: string;
+  /** Category to filter by; defaults to "all" */
+  category?: "all" | "awareness" | "lead_gen" | "sales";
 }
 
 /* -----------------------------------------------------
-   🔍 Helper: Filter creators
+   🔍 Helpers
 ----------------------------------------------------- */
+function normalize(input: string): string {
+  return input.trim().toLowerCase();
+}
+
 function filterCreators(
   creators: Creator[],
-  query: string,
+  niche: string,
   category: string
 ): Creator[] {
-  const lower = normalizeInput(query);
-  const isHandle = lower.startsWith("@");
+  const normalizedNiche = normalize(niche);
 
-  // First filter by category
-  //const list = creators.filter((c) => c.category === category);
-  const list =
+  const byCategory =
     category === "all"
       ? creators
       : creators.filter((c) => c.category === category);
-  if (isHandle) {
-    return list.filter(
-      (c) => c.creator_handle?.toLowerCase() === lower
-    );
-  }
 
-  // Niche search
-  return list.filter((c) =>
-    c.niche.toLowerCase().includes(lower)
+  if (!normalizedNiche) return byCategory;
+
+  return byCategory.filter((c) =>
+    c.niche.toLowerCase().includes(normalizedNiche)
   );
 }
 
 /* -----------------------------------------------------
    🎨 Component
 ----------------------------------------------------- */
-export default function Generator() {
-  const [query, setQuery] = useState("");
-  const [category, setCategory] = useState("all");
+export default function Generator({
+  niche,
+  category = "all",
+}: GeneratorProps) {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<Creator[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   /* -----------------------------------------------------
-     🚀 Main Search Function (Fully Typed)
+     🚀 Fetch + filter on mount / when props change
   ----------------------------------------------------- */
-  async function generate() {
-    setResults([]);
-    setError(null);
+  useEffect(() => {
+    async function load() {
+      setLoading(true);
+      setError(null);
+      setResults([]);
 
-    if (!query.trim()) {
-      setError("Enter a niche or a TikTok handle.");
-      return;
-    }
+      try {
+        const res = await fetch("/api/secret", {
+          headers: {
+            "x-api-key": process.env.NEXT_PUBLIC_API_KEY || "",
+          },
+        });
 
-    setLoading(true);
+        if (!res.ok) throw new Error("Unauthorized or API error");
 
-    try {
-      const res = await fetch("/api/secret", {
-        headers: {
-          "x-api-key": process.env.NEXT_PUBLIC_API_KEY || "",
-        },
-      });
+        const data: ApiResponse = await res.json();
+        const filtered = filterCreators(data.creators, niche, category);
 
-      if (!res.ok) throw new Error("Unauthorized or API error");
-
-      // Strong typing enforced:
-      const data: ApiResponse = await res.json();
-      const filtered = filterCreators(data.creators, query, category);
-
-      if (filtered.length === 0) {
-        setError("No creators found for this search.");
-      } else {
-        setResults(filtered);
+        if (filtered.length === 0) {
+          setError("No creators found for this shortlist.");
+        } else {
+          setResults(filtered);
+        }
+      } catch (err) {
+        setError("Failed to load creator database.");
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      setError("Failed to load creator database.");
     }
 
-    setLoading(false);
-  }
+    load();
+  }, [niche, category]);
 
   /* -----------------------------------------------------
      🎨 UI
   ----------------------------------------------------- */
   return (
-    <section className="mx-auto mt-10 max-w-5xl px-4 text-center text-white mb-0">
-
-      {/* INPUT + CATEGORY */}
-      <div className="mt-6 flex items-end">
-        {/* Input */}
-        <div className="flex-1 flex flex-col">
-          <label className="mb-1 block text-sm text-gray-400">
-            Enter a niche OR TikTok handle
-          </label>
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="fitness OR @fitmomjessie"
-            className="w-full h-[44px] border border-white/10 bg-black/40 px-3 text-white rounded-l-lg"
-          />
-        </div>
-
-        {/* Category Selector */}
-        <div className="flex w-48 flex-col">
-          <label className="mb-1 block text-sm text-gray-400">
-            Category
-          </label>
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="w-full h-[44px] border border-white/10 bg-black/40 px-3 text-white rounded-r-lg"
-          >
-            <option value="all">All</option>
-            <option value="awareness">Brand Awareness</option>
-            <option value="lead_gen">Lead Generation</option>
-            <option value="sales">Sales/Conversion</option>
-          </select>
-        </div>
+    <section className="mx-auto mt-10 max-w-5xl px-4 text-white mb-0">
+      {/* Heading */}
+      <div className="mb-4 flex items-baseline justify-between gap-2">
+        <h3 className="text-xl font-semibold text-indigo-400">
+          Creator Shortlist
+        </h3>
+        <p className="text-xs text-gray-500">
+          Niche: <span className="font-medium text-gray-300">{niche}</span>{" "}
+          · Category:{" "}
+          <span className="font-medium text-gray-300">
+            {category === "all" ? "All" : category}
+          </span>
+        </p>
       </div>
 
-      {/* Search button */}
-      <div className="mt-8">
-        <button
-          onClick={generate}
-          disabled={loading}
-          className="rounded-lg bg-indigo-500 px-6 py-3 font-medium text-white hover:bg-indigo-400 disabled:opacity-50"
-        >
-          {loading ? "Searching..." : "Search Creators"}
-        </button>
-      </div>
+      {loading && (
+        <p className="mt-4 text-sm text-gray-400">Loading creators…</p>
+      )}
 
-      {error && <p className="mt-4 text-red-400">{error}</p>}
-     
+      {error && !loading && (
+        <p className="mt-4 text-sm text-red-400">{error}</p>
+      )}
+
       {/* RESULTS */}
       <AnimatePresence>
-        {results.length > 0 && (
+        {!loading && results.length > 0 && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4 }}
-            className="mt-10 text-left"
+            className="mt-4 text-left"
           >
-            <h3 className="mb-3 text-xl font-semibold text-indigo-400">
-              Results
-            </h3>
-
             <ul className="space-y-3">
               {/* HEADER */}
               <li
@@ -187,8 +153,12 @@ export default function Generator() {
               >
                 <div className="min-w-[180px]">Name / Niche</div>
                 <div className="min-w-[200px]">TikTok Link</div>
-                <div className="min-w-[120px] text-center">Posting Frequency</div>
-                <div className="min-w-[120px] text-center">Performance</div>
+                <div className="min-w-[120px] text-center">
+                  Posting Frequency
+                </div>
+                <div className="min-w-[120px] text-center">
+                  Performance
+                </div>
                 <div className="min-w-[120px] text-center">Risk</div>
                 <div className="min-w-[80px] text-center">Region</div>
               </li>
@@ -207,7 +177,7 @@ export default function Generator() {
                   <div className="flex items-center justify-between gap-4">
                     {/* Name / niche */}
                     <div className="flex flex-col min-w-[180px]">
-                      <span className="font-semibold text-gray-400">
+                      <span className="font-semibold text-gray-200">
                         {c.creator_name}
                       </span>
                       <span className="text-xs text-gray-400">
@@ -220,6 +190,7 @@ export default function Generator() {
                       <a
                         href={c.tiktok_link}
                         target="_blank"
+                        rel="noreferrer"
                         className="text-indigo-400 underline"
                       >
                         {c.tiktok_link}
@@ -250,7 +221,6 @@ export default function Generator() {
           </motion.div>
         )}
       </AnimatePresence>
-     
     </section>
   );
 }
