@@ -64,7 +64,7 @@ export default function CreatorDirectory() {
             const isLive = cat.status === "live";
             const href = isLive
               ? `/creator-directory/${cat.slug}`
-              : "/contact";
+              : "/#contact";
 
             const statusLabel = isLive
               ? "Live · Free access"
