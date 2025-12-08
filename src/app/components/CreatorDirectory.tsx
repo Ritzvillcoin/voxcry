@@ -3,6 +3,13 @@
 export default function CreatorDirectory() {
   const categories = [
     {
+      title: "AI & SaaS Creators",
+      description:
+       "Creators focused on explaining, reviewing, and demoing AI and SaaS products.",
+      slug: "saas",
+      status: "live",
+    },
+    {
       title: "Fitness Creators",
       description:
         "Performance-screened creators in fitness, wellness, and coaching content.",

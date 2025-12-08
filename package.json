@@ -2,9 +2,6 @@
   "name": "voxcry",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "filter": "ts-node scripts/filterCreators.ts"
-  },
   "dependencies": {
     "framer-motion": "^12.23.24",
     "next": "^15.5.7",
@@ -25,11 +22,10 @@
     "tailwindcss": "^4.1.14",
     "typescript": "^5.9.3"
   },
-  "scripts": {
-  "dev": "next dev",
-  "build": "next build",
-  "start": "next start",
-  "lint": "next lint"
-}
-
+   "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  }
 }
