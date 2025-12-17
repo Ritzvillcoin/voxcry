@@ -1,0 +1,28 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="512" height="512" rx="64" fill="#050816"/>
+  
+  <!-- VoxCry text -->
+  <text x="50%" y="40%" text-anchor="middle"
+        font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+        font-size="72" font-weight="700" fill="#FFFFFF">
+    VoxCry
+  </text>
+  
+  <!-- UGC Picked pill -->
+  <g transform="translate(106, 290)">
+    <!-- pill background -->
+    <rect x="0" y="0" rx="24" ry="24" width="300" height="72" fill="#111827" stroke="#22C55E" stroke-width="2"/>
+    
+    <!-- check icon -->
+    <circle cx="42" cy="36" r="18" fill="#22C55E"/>
+    <path d="M34 36 L40 42 L50 30" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    
+    <!-- pill text -->
+    <text x="80" y="45"
+          font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+          font-size="28" font-weight="600" fill="#FFFFFF">
+      UGC Picked
+    </text>
+  </g>
+</svg>

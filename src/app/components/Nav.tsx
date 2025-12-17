@@ -27,8 +27,8 @@ export default function Nav() {
             For Creators
           </Link>
 
-          {/* Existing Get Started button */}
-          <Link href="#contact" className="button-primary">Contact</Link>
+          {/* Existing Get Started button 
+          <Link href="#contact" className="button-primary">Contact</Link> */}
         </div>
       </div>
     </nav>

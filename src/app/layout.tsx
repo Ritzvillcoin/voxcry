@@ -66,7 +66,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="min-h-screen pb-[120px] md:pb-[160px]">
         {children}
         </div>
-        <StickyAd />
+        {/*<StickyAd />*/}
         </body>
     </html>
   );
