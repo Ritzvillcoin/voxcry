@@ -31,7 +31,6 @@ type VoteResult = {
 };
 
 function getOrCreateVoterId() {
-  if (typeof window === "undefined") return "server";
   const key = "voxcry_voter_id";
   let id = localStorage.getItem(key);
   if (!id) {
@@ -89,32 +88,40 @@ export default function HirePassFeed({
   const list = creators as unknown as CreatorItem[];
 
   const [busy, setBusy] = useState(false);
-  //const [voterId, setVoterId] = useState("");
   const [result, setResult] = useState<VoteResult | null>(null);
-  const [voterId] = useState(() => getOrCreateVoterId());
 
-  // random starting creator
-  const [index, setIndex] = useState(() =>
-    list.length ? randomInt(list.length) : 0
-  );
+  // ✅ hydration-safe: do NOT read localStorage / crypto during render
+  const [voterId, setVoterId] = useState<string>("");
+
+  // ✅ hydration-safe: deterministic first render (server + client match)
+  const [index, setIndex] = useState(0);
 
   // session-only: no repeats in last N
   const recentRef = useRef<string[]>([]);
 
-  //useEffect(() => setVoterId(getOrCreateVoterId()), []);
+  // ✅ after mount: set voterId and randomize starting creator
+  useEffect(() => {
+    if (!list.length) return;
+
+    setVoterId(getOrCreateVoterId());
+    setIndex(randomInt(list.length));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [list.length]);
 
   // keep index valid if list changes
   useEffect(() => {
     if (!list.length) return;
 
     if (index < 0 || index >= list.length) {
-      setIndex(randomInt(list.length));
+      setIndex(0);
       setResult(null);
     }
 
     // prune recent list to handles that still exist
     const valid = new Set(list.map((c) => c.creator_handle));
-    recentRef.current = recentRef.current.filter((h) => valid.has(h)).slice(0, historySize);
+    recentRef.current = recentRef.current
+      .filter((h) => valid.has(h))
+      .slice(0, historySize);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [list.length]);
 
@@ -144,13 +151,17 @@ export default function HirePassFeed({
 
     setBusy(true);
     try {
+      // ✅ ensure we have an id even if user taps super fast on first paint
+      const id = voterId || getOrCreateVoterId();
+      if (!voterId) setVoterId(id);
+
       const res = await fetch("/api/hire-pass", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           creator_handle: current.creator_handle,
           vote: v,
-          voterId,
+          voterId: id,
         }),
       });
 
@@ -182,7 +193,7 @@ export default function HirePassFeed({
 
   return (
     <div className="mx-auto max-w-xl px-4 py-10">
-     {/* <div className="mb-6 text-center">
+      {/* <div className="mb-6 text-center">
         <h1 className="text-3xl font-bold text-white">{title}</h1>
         <p className="mt-2 text-sm text-gray-400">{subtitle}</p>
       </div> */}
@@ -248,7 +259,9 @@ export default function HirePassFeed({
                 </div>
                 <div className="rounded-xl bg-zinc-900/60 p-3">
                   <div className="text-gray-400">Risk</div>
-                  <div className="mt-1 text-white">{current.risk_score ?? "—"}</div>
+                  <div className="mt-1 text-white">
+                    {current.risk_score ?? "—"}
+                  </div>
                 </div>
               </div>
             </div>
@@ -300,8 +313,12 @@ export default function HirePassFeed({
               </div>
 
               <div className="mt-2 flex justify-between text-xs text-gray-300">
-                <span>Viral {hirePct}% ({result.hire})</span>
-                <span>Flop {passPct}% ({result.pass})</span>
+                <span>
+                  Viral {hirePct}% ({result.hire})
+                </span>
+                <span>
+                  Flop {passPct}% ({result.pass})
+                </span>
               </div>
 
               {/* Manual Next row */}
@@ -357,5 +374,6 @@ export default function HirePassFeed({
     </div>
   );
 }
+
 
 
