@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import creators from "@/data/mobile-app-creators.json";
 
@@ -40,43 +40,11 @@ function getOrCreateVoterId() {
   return id;
 }
 
-function randomInt(max: number) {
-  return Math.floor(Math.random() * max);
-}
-
-function pickNextIndexWithHistory(
-  list: CreatorItem[],
-  currentIndex: number,
-  excludeHandles: string[]
-) {
-  const n = list.length;
-  if (n <= 1) return 0;
-
-  // 1) avoid last-N
-  let exclude = new Set(excludeHandles);
-  let candidates: number[] = [];
-  for (let i = 0; i < n; i++) {
-    if (!exclude.has(list[i].creator_handle)) candidates.push(i);
-  }
-  if (candidates.length) return candidates[randomInt(candidates.length)];
-
-  // 2) fallback: avoid only immediate repeat
-  exclude = new Set([list[currentIndex].creator_handle]);
-  candidates = [];
-  for (let i = 0; i < n; i++) {
-    if (!exclude.has(list[i].creator_handle)) candidates.push(i);
-  }
-  if (candidates.length) return candidates[randomInt(candidates.length)];
-
-  // 3) worst case
-  return currentIndex;
-}
-
 export default function HirePassFeed({
   //title = "Hire or Pass: Mobile App Creators",
   subtitle = "Will this creator go viral?",
   showResultMs = 900, // used only if autoAdvance=true
-  historySize = 10,
+  historySize = 10, // kept for UI text only
   autoAdvance = false, // ✅ manual next by default
 }: {
   title?: string;
@@ -85,6 +53,7 @@ export default function HirePassFeed({
   historySize?: number;
   autoAdvance?: boolean;
 }) {
+  // ✅ Keep JSON order as-is (newest at top)
   const list = creators as unknown as CreatorItem[];
 
   const [busy, setBusy] = useState(false);
@@ -93,22 +62,17 @@ export default function HirePassFeed({
   // ✅ hydration-safe: do NOT read localStorage / crypto during render
   const [voterId, setVoterId] = useState<string>("");
 
-  // ✅ hydration-safe: deterministic first render (server + client match)
+  // ✅ deterministic first render: newest (top of JSON) always shows first
   const [index, setIndex] = useState(0);
 
-  // session-only: no repeats in last N
-  const recentRef = useRef<string[]>([]);
-
-  // ✅ after mount: set voterId and randomize starting creator
+  // ✅ after mount: set voterId only (no random start)
   useEffect(() => {
     if (!list.length) return;
-
     setVoterId(getOrCreateVoterId());
-    setIndex(randomInt(list.length));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [list.length]);
 
-  // keep index valid if list changes
+  // keep index valid if list changes (e.g., JSON updated)
   useEffect(() => {
     if (!list.length) return;
 
@@ -116,33 +80,17 @@ export default function HirePassFeed({
       setIndex(0);
       setResult(null);
     }
-
-    // prune recent list to handles that still exist
-    const valid = new Set(list.map((c) => c.creator_handle));
-    recentRef.current = recentRef.current
-      .filter((h) => valid.has(h))
-      .slice(0, historySize);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [list.length]);
+  }, [list.length, index]);
 
   const current = list[index];
 
   function next() {
-    if (!current || !list.length) return;
+    if (!list.length) return;
 
     setResult(null);
 
-    // Update recent history: put current at the front, keep unique, trim to historySize
-    const updatedRecent = [
-      current.creator_handle,
-      ...recentRef.current.filter((h) => h !== current.creator_handle),
-    ].slice(0, historySize);
-
-    recentRef.current = updatedRecent;
-
-    // Pick next index not in recent list
-    const nextIndex = pickNextIndexWithHistory(list, index, updatedRecent);
-    setIndex(nextIndex);
+    // ✅ sequential order (wrap)
+    setIndex((prev) => (prev + 1) % list.length);
   }
 
   async function vote(v: "hire" | "pass") {
@@ -350,7 +298,8 @@ export default function HirePassFeed({
             </div>
           ) : (
             <div className="mt-3 text-center text-xs text-gray-500">
-              No repeats in the last {historySize} creators (per session).
+              Showing creators in JSON order (newest first). No repeats in the last{" "}
+              {historySize} creators (per session).
             </div>
           )}
 
@@ -374,6 +323,7 @@ export default function HirePassFeed({
     </div>
   );
 }
+
 
 
 
