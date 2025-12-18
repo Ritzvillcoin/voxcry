@@ -297,9 +297,9 @@ export default function HirePassFeed({
               </p>
             </div>
           ) : (
-            <div className="mt-3 text-center text-xs text-gray-500">
-              Showing creators in JSON order (newest first). No repeats in the last{" "}
-              {historySize} creators (per session).
+           <div className="mt-3 text-center text-xs text-gray-500">
+              {/*Showing creators in JSON order (newest first). No repeats in the last{" "}
+              {historySize} creators (per session).*/}
             </div>
           )}
 
