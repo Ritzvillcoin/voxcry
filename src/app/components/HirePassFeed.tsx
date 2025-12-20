@@ -1,25 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import creators from "@/data/mobile-app-creators.json";
+import TikTokEmbed from "./TikTokEmbed";
 
-export type CreatorItem = {
-  creator_name: string;
-  creator_handle: string;
-  tiktok_link: string;
-
-  followers?: string;
-  posting_frequency?: string;
-  category?: string;
-  niche?: string;
-  region?: string;
-  performance_health?: string;
-  risk_score?: string;
-  start_from?: string;
-  notes?: string;
-
-  cover_image?: string; // optional thumbnail/screenshot URL
+type FeedItem = {
+  creator_handle: string; // "@handle" (or "handle" — we'll normalize)
+  tiktok_link: string;    // TikTok VIDEO URL
 };
 
 type VoteResult = {
@@ -40,66 +27,109 @@ function getOrCreateVoterId() {
   return id;
 }
 
+function normalizeHandle(h: string) {
+  const s = (h || "").trim();
+  if (!s) return "";
+  return s.startsWith("@") ? s : `@${s}`;
+}
+
+function extractVideoId(url: string) {
+  const m = (url || "").match(/\/video\/(\d+)/);
+  return m?.[1] ?? null;
+}
+
 export default function HirePassFeed({
-  //title = "Hire or Pass: Mobile App Creators",
   subtitle = "Will this creator go viral?",
   showResultMs = 900, // used only if autoAdvance=true
-  historySize = 10, // kept for UI text only
-  autoAdvance = false, // ✅ manual next by default
+  autoAdvance = false, // manual next by default
+  limit = 200,
 }: {
-  title?: string;
   subtitle?: string;
   showResultMs?: number;
-  historySize?: number;
   autoAdvance?: boolean;
+  limit?: number;
 }) {
-  // ✅ Keep JSON order as-is (newest at top)
-  const list = creators as unknown as CreatorItem[];
-
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<VoteResult | null>(null);
 
-  // ✅ hydration-safe: do NOT read localStorage / crypto during render
+  // hydration-safe: do NOT read localStorage / crypto during render
   const [voterId, setVoterId] = useState<string>("");
 
-  // ✅ deterministic first render: newest (top of JSON) always shows first
+  // feed from KV (via /api/feed)
+  const [feed, setFeed] = useState<FeedItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string>("");
+
   const [index, setIndex] = useState(0);
 
-  // ✅ after mount: set voterId only (no random start)
+  // after mount: set voterId
   useEffect(() => {
-    if (!list.length) return;
     setVoterId(getOrCreateVoterId());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [list.length]);
+  }, []);
 
-  // keep index valid if list changes (e.g., JSON updated)
+  // load feed
   useEffect(() => {
-    if (!list.length) return;
+    let cancelled = false;
 
-    if (index < 0 || index >= list.length) {
+    async function run() {
+      setLoading(true);
+      setLoadError("");
+      try {
+        const res = await fetch(`/api/feed?limit=${encodeURIComponent(String(limit))}`, {
+          cache: "no-store",
+        });
+        if (!res.ok) throw new Error(`Feed API failed: ${res.status}`);
+
+        const data = (await res.json()) as { items?: FeedItem[] };
+        const items = Array.isArray(data?.items) ? data.items : [];
+
+        if (!cancelled) {
+          setFeed(items);
+          setIndex(0);
+          setResult(null);
+        }
+      } catch (e: any) {
+        if (!cancelled) {
+          setFeed([]);
+          setLoadError(e?.message || "Failed to load feed");
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, [limit]);
+
+  // keep index valid if feed changes
+  useEffect(() => {
+    if (!feed.length) return;
+    if (index < 0 || index >= feed.length) {
       setIndex(0);
       setResult(null);
     }
-  }, [list.length, index]);
+  }, [feed.length, index]);
 
-  const current = list[index];
+  const current = feed[index];
+
+  const currentHandle = useMemo(() => normalizeHandle(current?.creator_handle || ""), [current]);
+  const currentVideoId = useMemo(() => extractVideoId(current?.tiktok_link || ""), [current]);
 
   function next() {
-    if (!list.length) return;
-
+    if (!feed.length) return;
     setResult(null);
-
-    // ✅ sequential order (wrap)
-    setIndex((prev) => (prev + 1) % list.length);
+    setIndex((prev) => (prev + 1) % feed.length);
   }
 
   async function vote(v: "hire" | "pass") {
-    // ✅ prevent voting again once result is shown; user must hit Next
+    // prevent voting again once result is shown
     if (!current || busy || result) return;
 
     setBusy(true);
     try {
-      // ✅ ensure we have an id even if user taps super fast on first paint
       const id = voterId || getOrCreateVoterId();
       if (!voterId) setVoterId(id);
 
@@ -107,7 +137,7 @@ export default function HirePassFeed({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          creator_handle: current.creator_handle,
+          creator_handle: currentHandle, // ✅ matches your vote keys hp:v1:hire:@handle
           vote: v,
           voterId: id,
         }),
@@ -116,22 +146,37 @@ export default function HirePassFeed({
       const data = (await res.json()) as VoteResult;
       setResult(data);
 
-      // optional auto-advance
       if (autoAdvance) {
         window.setTimeout(() => next(), showResultMs);
       }
     } catch {
-      // If API fails, still show something and allow next
       setResult({ hire: 0, pass: 0, hirePct: 0, passPct: 0, deduped: false });
     } finally {
       setBusy(false);
     }
   }
 
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-xl px-4 py-12 text-center text-gray-300">
+        Loading feed…
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="mx-auto max-w-xl px-4 py-12 text-center text-gray-300">
+        <div className="text-white font-semibold">Failed to load feed</div>
+        <div className="mt-2 text-xs text-gray-400">{loadError}</div>
+      </div>
+    );
+  }
+
   if (!current) {
     return (
       <div className="mx-auto max-w-xl px-4 py-12 text-center text-gray-300">
-        No creators loaded.
+        No creators/videos found in KV.
       </div>
     );
   }
@@ -141,81 +186,40 @@ export default function HirePassFeed({
 
   return (
     <div className="mx-auto max-w-xl px-4 py-10">
-      {/* <div className="mb-6 text-center">
-        <h1 className="text-3xl font-bold text-white">{title}</h1>
-        <p className="mt-2 text-sm text-gray-400">{subtitle}</p>
-      </div> */}
-
       <AnimatePresence mode="wait">
         <motion.div
-          key={current.creator_handle}
+          key={`${currentHandle}:${currentVideoId ?? index}`}
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -14 }}
           transition={{ duration: 0.18 }}
           className="rounded-3xl bg-zinc-900/70 p-4 shadow-xl ring-1 ring-white/10"
           onClick={() => {
-            // ✅ tap card to go Next, but only after voting
+            // tap card to go Next, but only after voting
             if (result && !busy) next();
           }}
           role="button"
         >
-          {/* Header */}
+          {/* Header: handle only */}
           <div className="flex items-start justify-between gap-3">
             <div>
-              <div className="text-lg font-semibold text-white">
-                {current.creator_name}
-              </div>
-              <a
-                href={current.tiktok_link}
-                target="_blank"
-                rel="noreferrer"
-                className="text-sm text-gray-300 underline underline-offset-4"
-                onClick={(e) => e.stopPropagation()}
-              >
-                @{current.creator_handle}
-              </a>
+              <div className="text-lg font-semibold text-white">{currentHandle}</div>
+              <div className="mt-1 text-xs text-gray-500">{subtitle}</div>
             </div>
 
-            <div className="text-right text-xs text-gray-400">
-              <div>{current.followers ?? ""}</div>
-              <div>{current.region ?? ""}</div>
+            <div className="text-right text-xs text-gray-500">
+              {index + 1}/{feed.length}
             </div>
           </div>
 
-          {/* Media */}
-          {current.cover_image ? (
-            <div className="mt-4 overflow-hidden rounded-2xl">
-              <img
-                src={current.cover_image}
-                alt={current.creator_name}
-                className="h-[520px] w-full object-cover"
-                draggable={false}
-              />
+          {/* TikTok (always visible) */}
+          <div className="mt-4 overflow-hidden rounded-2xl bg-black/30 ring-1 ring-white/10">
+            <div className="px-2 pb-3 pt-2" onClick={(e) => e.stopPropagation()}>
+              <TikTokEmbed key={currentVideoId ?? current.tiktok_link} videoUrl={current.tiktok_link} />
             </div>
-          ) : (
-            <div className="mt-4 rounded-2xl bg-zinc-800/60 p-5 text-sm text-gray-300">
-              <div className="font-semibold text-white">Niche</div>
-              <div className="mt-1">{current.niche ?? "—"}</div>
+          </div>
 
-              <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
-                <div className="rounded-xl bg-zinc-900/60 p-3">
-                  <div className="text-gray-400">Performance</div>
-                  <div className="mt-1 text-white">
-                    {current.performance_health ?? "—"}
-                  </div>
-                </div>
-                <div className="rounded-xl bg-zinc-900/60 p-3">
-                  <div className="text-gray-400">Risk</div>
-                  <div className="mt-1 text-white">
-                    {current.risk_score ?? "—"}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Vote Buttons (hidden once voted) */}
+          {/* Vote Buttons */}
           {!result ? (
             <div className="mt-4 grid grid-cols-2 gap-3">
               <button
@@ -269,8 +273,7 @@ export default function HirePassFeed({
                 </span>
               </div>
 
-              {/* Manual Next row */}
-              <div className="mt-4 flex gap-3">
+              <div className="mt-4">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -280,16 +283,6 @@ export default function HirePassFeed({
                 >
                   Next →
                 </button>
-
-                <a
-                  href={current.tiktok_link}
-                  target="_blank"
-                  rel="noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="w-full rounded-2xl bg-zinc-800 py-3 text-center font-bold text-white"
-                >
-                  Watch
-                </a>
               </div>
 
               <p className="mt-3 text-center text-xs text-gray-500">
@@ -297,13 +290,10 @@ export default function HirePassFeed({
               </p>
             </div>
           ) : (
-           <div className="mt-3 text-center text-xs text-gray-500">
-              {/*Showing creators in JSON order (newest first). No repeats in the last{" "}
-              {historySize} creators (per session).*/}
-            </div>
+            <div className="mt-3 text-center text-xs text-gray-500">Vote after watching.</div>
           )}
 
-          {/* Optional manual skip when not voted */}
+          {/* Optional skip before voting */}
           {!result ? (
             <div className="mt-3 text-center">
               <button
@@ -314,7 +304,7 @@ export default function HirePassFeed({
                 disabled={busy}
                 className="text-xs text-gray-400 underline underline-offset-4 disabled:opacity-60"
               >
-                Skip → next creator
+                Skip → next
               </button>
             </div>
           ) : null}
@@ -323,6 +313,7 @@ export default function HirePassFeed({
     </div>
   );
 }
+
 
 
 
