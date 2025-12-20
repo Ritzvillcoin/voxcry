@@ -88,10 +88,11 @@ export default function HirePassFeed({
           setIndex(0);
           setResult(null);
         }
-      } catch (e: any) {
+       } catch (e: unknown) {
         if (!cancelled) {
           setFeed([]);
-          setLoadError(e?.message || "Failed to load feed");
+          const message = e instanceof Error ? e.message : "Failed to load feed";
+          setLoadError(message);
         }
       } finally {
         if (!cancelled) setLoading(false);
