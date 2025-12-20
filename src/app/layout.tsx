@@ -2,53 +2,77 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import GoogleTagManager from "./components/GoogleTagManager";
-import AdsenseScript from "./components/AdsenseScript";
+//import AdsenseScript from "./components/AdsenseScript";
 import StickyAd from "./components/StickyAd";
 import GoogleAnalytics from "./components/GoogleAnalytics";
 
+//import type { Metadata } from "next";
+
 export const metadata: Metadata = {
-  title: "AI-Powered creator screening",
+  metadataBase: new URL("https://voxcry.com"),
+
+  title: {
+    default: "VoxCry — Find Vetted TikTok & UGC Creators",
+    template: "%s | VoxCry",
+  },
+
   description:
-    "VoxCry connects brands with the right creators through simple, accurate AI analysis.",
+    "Discover vetted TikTok and UGC creators and post briefs to get fast replies. VoxCry helps brands and agencies shortlist creators with simple performance signals and a creator-first workflow.",
+
+  alternates: {
+    canonical: "/",
+  },
+
+  openGraph: {
+    type: "website",
+    url: "https://voxcry.com",
+    siteName: "VoxCry",
+    title: "VoxCry — Find Vetted TikTok & UGC Creators",
+    description:
+      "Discover vetted creators and post briefs to get fast replies. Simple creator screening and a creator-first workflow.",
+    images: [
+      {
+        url: "/og.png", // add this image in /public
+        width: 1200,
+        height: 630,
+        alt: "VoxCry — Vetted TikTok & UGC creators",
+      },
+    ],
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "VoxCry — Find Vetted TikTok & UGC Creators",
+    description:
+      "Discover vetted creators and post briefs to get fast replies. Simple creator screening and a creator-first workflow.",
+    images: ["/og.png"],
+  },
+
+  // Keep keywords short + realistic (Google mostly ignores keywords meta anyway)
   keywords: [
-    "AI creator vetting",
-    "AI creator screening",
-    "AI influencer vetting",
-    "free AI influencer screening",
-    "creator verification tool",
-    "influencer verification tool",
-    "AI creator analysis",
-    "AI UGC vetting",
-    "AI brand safety check",
-    "free AI creator risk scoring",
-    "fake follower detection tool",
-    "creator authenticity checker",
-    "creator audience demographics",
-    "AI brand-creator matching",
-    "creator content quality scoring",
-    "free AI creator insights",
-    "TikTok creator analysis tool",
-    "TikTok creator screening AI",
-    "UGC content analysis AI",
-    "content style classification AI",
-    "creator hook analysis",
-    "free creator performance scoring",
-    "creator performance analyzer",
-    "free engagement quality analysis",
-    "influencer transparency tool",
-    "audience authenticity check",
-    "creator niche classification AI",
-    "brand safety for creators",
-    "UGC creator analysis",
+    "UGC creators",
+    "TikTok creators",
     "creator vetting",
-    "free screened Tiktok creators",
-    "AI creator insights platform",
-    "AI content breakdown tool",
-    "automated creator vetting system",
-    "AI-powered creator performance audit",
+    "creator screening",
+    "influencer marketing",
+    "UGC briefs",
+    "brand creator matching",
+    "creator directory",
   ],
-  metadataBase: new URL("https://voxcry.com")
+
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
 };
+
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -61,7 +85,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
-       <AdsenseScript />
+       {/*<AdsenseScript />*/}
        <GoogleAnalytics />
         <div className="min-h-screen pb-[120px] md:pb-[160px]">
         {children}

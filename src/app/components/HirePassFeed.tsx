@@ -229,7 +229,7 @@ export default function HirePassFeed({
                   e.stopPropagation();
                   vote("hire");
                 }}
-                className="rounded-2xl bg-white py-3 font-bold text-black disabled:opacity-60"
+                className="rounded-2xl bg-white py-4 text-lg font-bold text-black disabled:opacity-60"
               >
                 VIRAL ✅
               </button>
@@ -239,7 +239,7 @@ export default function HirePassFeed({
                   e.stopPropagation();
                   vote("pass");
                 }}
-                className="rounded-2xl bg-zinc-800 py-3 font-bold text-white disabled:opacity-60"
+                className="rounded-2xl bg-zinc-800 py-4 text-lg font-bold text-white disabled:opacity-60"
               >
                 FLOP ❌
               </button>
