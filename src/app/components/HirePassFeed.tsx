@@ -6,7 +6,7 @@ import TikTokEmbed from "./TikTokEmbed";
 
 type FeedItem = {
   creator_handle: string; // "@handle" (or "handle" — we'll normalize)
-  tiktok_link: string;    // TikTok VIDEO URL
+  tiktok_link: string; // TikTok VIDEO URL
 };
 
 type VoteResult = {
@@ -39,15 +39,19 @@ function extractVideoId(url: string) {
 }
 
 export default function HirePassFeed({
-  subtitle = "Will this creator go viral?",
+  //subtitle = "Will this creator go viral?",
   showResultMs = 900, // used only if autoAdvance=true
   autoAdvance = false, // manual next by default
   limit = 200,
+  openLabel = "Open in TikTok →",
+  //openHint = "Like/comment happens in TikTok (the embed is watch-only).",
 }: {
-  subtitle?: string;
+  //subtitle?: string;
   showResultMs?: number;
   autoAdvance?: boolean;
   limit?: number;
+  openLabel?: string;
+  //openHint?: string;
 }) {
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<VoteResult | null>(null);
@@ -88,7 +92,7 @@ export default function HirePassFeed({
           setIndex(0);
           setResult(null);
         }
-       } catch (e: unknown) {
+      } catch (e: unknown) {
         if (!cancelled) {
           setFeed([]);
           const message = e instanceof Error ? e.message : "Failed to load feed";
@@ -125,8 +129,16 @@ export default function HirePassFeed({
     setIndex((prev) => (prev + 1) % feed.length);
   }
 
+  function openInTikTok() {
+    if (!current?.tiktok_link) return;
+    try {
+      window.open(current.tiktok_link, "_blank", "noopener,noreferrer");
+    } catch {
+      window.location.href = current.tiktok_link;
+    }
+  }
+
   async function vote(v: "hire" | "pass") {
-    // prevent voting again once result is shown
     if (!current || busy || result) return;
 
     setBusy(true);
@@ -138,7 +150,7 @@ export default function HirePassFeed({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          creator_handle: currentHandle, // ✅ matches your vote keys hp:v1:hire:@handle
+          creator_handle: currentHandle,
           vote: v,
           voterId: id,
         }),
@@ -196,27 +208,41 @@ export default function HirePassFeed({
           transition={{ duration: 0.18 }}
           className="rounded-3xl bg-zinc-900/70 p-4 shadow-xl ring-1 ring-white/10"
           onClick={() => {
-            // tap card to go Next, but only after voting
             if (result && !busy) next();
           }}
           role="button"
         >
-          {/* Header: handle only */}
+          {/* Header */}
           <div className="flex items-start justify-between gap-3">
-            <div>
+            {/*<div>
               <div className="text-lg font-semibold text-white">{currentHandle}</div>
-              <div className="mt-1 text-xs text-gray-500">{subtitle}</div>
-            </div>
+              {/*<div className="mt-1 text-xs text-gray-500">{subtitle}</div>
+            </div> */}
 
             <div className="text-right text-xs text-gray-500">
               {index + 1}/{feed.length}
             </div>
           </div>
 
-          {/* TikTok (always visible) */}
+          {/* ✅ Open in TikTok CTA (MOVED TO TOP) */}
+          <div className="mt-3" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={openInTikTok}
+              className="w-full rounded-2xl bg-white py-3 text-base font-extrabold text-black hover:opacity-95 disabled:opacity-60"
+              disabled={busy}
+            >
+              {openLabel}
+            </button>
+            {/*<p className="mt-2 text-center text-xs text-gray-500">{openHint}</p>*/}
+          </div>
+
+          {/* TikTok */}
           <div className="mt-4 overflow-hidden rounded-2xl bg-black/30 ring-1 ring-white/10">
             <div className="px-2 pb-3 pt-2" onClick={(e) => e.stopPropagation()}>
-              <TikTokEmbed key={currentVideoId ?? current.tiktok_link} videoUrl={current.tiktok_link} />
+              <TikTokEmbed
+                key={currentVideoId ?? current.tiktok_link}
+                videoUrl={current.tiktok_link}
+              />
             </div>
           </div>
 
@@ -246,7 +272,7 @@ export default function HirePassFeed({
             </div>
           ) : null}
 
-          {/* Crowd verdict (stays until Next) */}
+          {/* Crowd verdict */}
           {result ? (
             <div className="mt-4 rounded-2xl bg-black/30 p-4 ring-1 ring-white/10">
               <div className="mb-2 text-sm font-semibold text-white">
@@ -291,7 +317,7 @@ export default function HirePassFeed({
               </p>
             </div>
           ) : (
-            <div className="mt-3 text-center text-xs text-gray-500">Vote after watching.</div>
+            <div className="mt-3 text-center text-xs text-gray-500">{/*Vote after watching.*/}</div>
           )}
 
           {/* Optional skip before voting */}

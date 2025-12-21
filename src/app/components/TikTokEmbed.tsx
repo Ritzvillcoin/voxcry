@@ -28,7 +28,7 @@ export default function TikTokEmbed({ videoUrl }: { videoUrl: string }) {
       loading="lazy"
       referrerPolicy="strict-origin-when-cross-origin"
       className="w-full rounded-2xl"
-      style={{ height: 620, border: 0 }}
+      style={{ height: 460, border: 0 }}
       title={`TikTok video ${postId}`}
     />
   );
