@@ -7,7 +7,7 @@ export default function Hero() {
       </h1>
 
       <p className="mx-auto mt-5 max-w-2xl text-lg text-[var(--muted)]">
-       High-potential UGC videos—discover, vote, support on TikTok.
+       Promising UGC videos daily — discover, vote, support on TikTok.
       </p>
 
       {/*!--<div className="mt-8 flex items-center justify-center gap-3">
