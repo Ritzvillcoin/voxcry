@@ -13,16 +13,26 @@ function extractTikTokPostId(tiktokUrl: string) {
   return m?.[2] ?? "";
 }
 
+/**
+ * Extracts @handle from common TikTok URL shapes like:
+ * - https://www.tiktok.com/@infiniteelliott/video/123...
+ * - https://www.tiktok.com/@infiniteelliott/photo/123...
+ * Also tolerates extra path/query params.
+ */
+function extractTikTokHandle(tiktokUrl: string) {
+  const m = (tiktokUrl || "").match(/tiktok\.com\/@([^\/\?\#]+)/i);
+  const raw = m?.[1] ?? "";
+  return raw ? normalizeHandle(raw) : "";
+}
+
 export default function AdminAddVideoPage() {
   const [adminToken, setAdminToken] = useState("");
-  const [creatorHandle, setCreatorHandle] = useState("@");
   const [tiktokUrl, setTiktokUrl] = useState("");
 
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string>("");
 
-  const handle = useMemo(() => normalizeHandle(creatorHandle), [creatorHandle]);
-  //const videoId = useMemo(() => extractVideoId(tiktokUrl), [tiktokUrl]);
+  const handle = useMemo(() => extractTikTokHandle(tiktokUrl), [tiktokUrl]);
   const postId = useMemo(() => extractTikTokPostId(tiktokUrl), [tiktokUrl]);
 
   async function submit() {
@@ -32,12 +42,12 @@ export default function AdminAddVideoPage() {
       setMsg("Missing admin token.");
       return;
     }
-    if (!handle) {
-      setMsg("Missing creator handle.");
-      return;
-    }
     if (!tiktokUrl.trim() || !postId) {
       setMsg("TikTok URL must be a valid video URL: /@handle/video/<id>");
+      return;
+    }
+    if (!handle) {
+      setMsg("Could not parse creator handle from the TikTok URL.");
       return;
     }
 
@@ -63,10 +73,9 @@ export default function AdminAddVideoPage() {
       setMsg(`✅ Added ${data.handle} video ${data.video_id} (ts=${data.added_at})`);
       setTiktokUrl("");
     } catch (e: unknown) {
-  const message = e instanceof Error ? e.message : "request_failed";
-  setMsg(`Error: ${message}`);
-}
- finally {
+      const message = e instanceof Error ? e.message : "request_failed";
+      setMsg(`Error: ${message}`);
+    } finally {
       setBusy(false);
     }
   }
@@ -91,16 +100,6 @@ export default function AdminAddVideoPage() {
         </label>
 
         <label className="block">
-          <div className="text-xs text-gray-400">Creator handle</div>
-          <input
-            value={creatorHandle}
-            onChange={(e) => setCreatorHandle(e.target.value)}
-            placeholder="@infiniteelliott"
-            className="mt-2 w-full rounded-xl bg-zinc-800 px-3 py-2 text-white outline-none ring-1 ring-white/10"
-          />
-        </label>
-
-        <label className="block">
           <div className="text-xs text-gray-400">TikTok video URL</div>
           <input
             value={tiktokUrl}
@@ -110,7 +109,7 @@ export default function AdminAddVideoPage() {
           />
           <div className="mt-2 text-xs text-gray-500">
             Parsed: <span className="text-gray-300">{handle || "—"}</span>
-            | post_id: <span className="text-gray-300">{postId || "—"}</span>
+            {"  "} | post_id: <span className="text-gray-300">{postId || "—"}</span>
           </div>
         </label>
 
@@ -131,3 +130,4 @@ export default function AdminAddVideoPage() {
     </div>
   );
 }
+

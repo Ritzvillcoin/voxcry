@@ -223,30 +223,7 @@ export default function HirePassFeed({
               {index + 1}/{feed.length}
             </div>
           </div>
-
-          {/* ✅ Open in TikTok CTA (MOVED TO TOP) */}
-          <div className="mt-3" onClick={(e) => e.stopPropagation()}>
-            <button
-              onClick={openInTikTok}
-              className="w-full rounded-2xl bg-white py-3 text-base font-extrabold text-black hover:opacity-95 disabled:opacity-60"
-              disabled={busy}
-            >
-              {openLabel}
-            </button>
-            {/*<p className="mt-2 text-center text-xs text-gray-500">{openHint}</p>*/}
-          </div>
-
-          {/* TikTok */}
-          <div className="mt-4 overflow-hidden rounded-2xl bg-black/30 ring-1 ring-white/10">
-            <div className="px-2 pb-3 pt-2" onClick={(e) => e.stopPropagation()}>
-              <TikTokEmbed
-                key={currentVideoId ?? current.tiktok_link}
-                videoUrl={current.tiktok_link}
-              />
-            </div>
-          </div>
-
-          {/* Vote Buttons */}
+         {/* Vote Buttons */}
           {!result ? (
             <div className="mt-4 grid grid-cols-2 gap-3">
               <button
@@ -318,8 +295,31 @@ export default function HirePassFeed({
             </div>
           ) : (
             <div className="mt-3 text-center text-xs text-gray-500">{/*Vote after watching.*/}</div>
-          )}
+          )} 
+          
 
+          {/* TikTok */}
+          <div className="mt-4 overflow-hidden rounded-2xl bg-black/30 ring-1 ring-white/10">
+            <div className="px-2 pb-3 pt-2" onClick={(e) => e.stopPropagation()}>
+              <TikTokEmbed
+                key={currentVideoId ?? current.tiktok_link}
+                videoUrl={current.tiktok_link}
+              />
+            </div>
+          </div>
+
+         
+          {/* ✅ Open in TikTok CTA (MOVED TO TOP) */}
+          <div className="mt-3" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={openInTikTok}
+              className="w-full rounded-2xl bg-white py-3 text-base font-extrabold text-black hover:opacity-95 disabled:opacity-60"
+              disabled={busy}
+            >
+              {openLabel}
+            </button>
+            {/*<p className="mt-2 text-center text-xs text-gray-500">{openHint}</p>*/}
+          </div>
           {/* Optional skip before voting */}
           {!result ? (
             <div className="mt-3 text-center">
