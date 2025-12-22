@@ -11,7 +11,7 @@ export default function Nav() {
          
         <div className="flex items-center gap-4">
          
-          {/* NEW: For Brands link (opens Google Form in new tab) */}
+          {/* NEW: For Brands link (opens Google Form in new tab) 
           <a
             href="https://forms.gle/RECyohJA1HSMTspr5"
             target="_blank"
@@ -25,8 +25,13 @@ export default function Nav() {
             className="button-primary"
           >
             For Creators
+          </Link>*/}
+          <Link 
+            href="/admin/video-preview"
+            className="button-primary"
+          >
+            Check My Video
           </Link>
-
           {/* Existing Get Started button 
           <Link href="#contact" className="button-primary">Contact</Link> */}
         </div>
