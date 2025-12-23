@@ -5,8 +5,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import TikTokEmbed from "./TikTokEmbed";
 
 type FeedItem = {
-  creator_handle: string; // "@handle" (or "handle" — we'll normalize)
-  tiktok_link: string; // TikTok VIDEO URL
+  creator_handle: string;
+  tiktok_link: string;
 };
 
 type VoteResult = {
@@ -18,6 +18,7 @@ type VoteResult = {
 };
 
 function getOrCreateVoterId() {
+  if (typeof window === "undefined") return "";
   const key = "voxcry_voter_id";
   let id = localStorage.getItem(key);
   if (!id) {
@@ -39,42 +40,30 @@ function extractVideoId(url: string) {
 }
 
 export default function HirePassFeed({
-  //subtitle = "Will this creator go viral?",
-  showResultMs = 900, // used only if autoAdvance=true
-  autoAdvance = false, // manual next by default
+  showResultMs = 900,
+  autoAdvance = false,
   limit = 200,
-  openLabel = "Open in TikTok →",
-  //openHint = "Like/comment happens in TikTok (the embed is watch-only).",
+  openLabel = "VIEW ON TIKTOK",
 }: {
-  //subtitle?: string;
   showResultMs?: number;
   autoAdvance?: boolean;
   limit?: number;
   openLabel?: string;
-  //openHint?: string;
 }) {
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<VoteResult | null>(null);
-
-  // hydration-safe: do NOT read localStorage / crypto during render
   const [voterId, setVoterId] = useState<string>("");
-
-  // feed from KV (via /api/feed)
   const [feed, setFeed] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string>("");
-
   const [index, setIndex] = useState(0);
 
-  // after mount: set voterId
   useEffect(() => {
     setVoterId(getOrCreateVoterId());
   }, []);
 
-  // load feed
   useEffect(() => {
     let cancelled = false;
-
     async function run() {
       setLoading(true);
       setLoadError("");
@@ -83,33 +72,23 @@ export default function HirePassFeed({
           cache: "no-store",
         });
         if (!res.ok) throw new Error(`Feed API failed: ${res.status}`);
-
-        const data = (await res.json()) as { items?: FeedItem[] };
-        const items = Array.isArray(data?.items) ? data.items : [];
-
+        const data = await res.json();
         if (!cancelled) {
-          setFeed(items);
+          setFeed(data?.items || []);
           setIndex(0);
           setResult(null);
         }
-      } catch (e: unknown) {
-        if (!cancelled) {
-          setFeed([]);
-          const message = e instanceof Error ? e.message : "Failed to load feed";
-          setLoadError(message);
-        }
-      } finally {
+     } catch (e: unknown) {
+  const message = e instanceof Error ? e.message : "request_failed";
+  setLoadError(message);
+} finally {
         if (!cancelled) setLoading(false);
       }
     }
-
     run();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [limit]);
 
-  // keep index valid if feed changes
   useEffect(() => {
     if (!feed.length) return;
     if (index < 0 || index >= feed.length) {
@@ -120,8 +99,16 @@ export default function HirePassFeed({
 
   const current = feed[index];
 
-  const currentHandle = useMemo(() => normalizeHandle(current?.creator_handle || ""), [current]);
-  const currentVideoId = useMemo(() => extractVideoId(current?.tiktok_link || ""), [current]);
+  // FIXED: Safety guards for useMemo
+  const currentHandle = useMemo(() => {
+    if (!current) return "";
+    return normalizeHandle(current.creator_handle || "");
+  }, [current]);
+
+  const currentVideoId = useMemo(() => {
+    if (!current) return null;
+    return extractVideoId(current.tiktok_link || "");
+  }, [current]);
 
   function next() {
     if (!feed.length) return;
@@ -131,21 +118,14 @@ export default function HirePassFeed({
 
   function openInTikTok() {
     if (!current?.tiktok_link) return;
-    try {
-      window.open(current.tiktok_link, "_blank", "noopener,noreferrer");
-    } catch {
-      window.location.href = current.tiktok_link;
-    }
+    window.open(current.tiktok_link, "_blank", "noopener,noreferrer");
   }
 
   async function vote(v: "hire" | "pass") {
     if (!current || busy || result) return;
-
     setBusy(true);
     try {
       const id = voterId || getOrCreateVoterId();
-      if (!voterId) setVoterId(id);
-
       const res = await fetch("/api/hire-pass", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -155,186 +135,120 @@ export default function HirePassFeed({
           voterId: id,
         }),
       });
-
-      const data = (await res.json()) as VoteResult;
+      const data = await res.json();
       setResult(data);
-
-      if (autoAdvance) {
-        window.setTimeout(() => next(), showResultMs);
-      }
+      if (autoAdvance) window.setTimeout(() => next(), showResultMs);
     } catch {
-      setResult({ hire: 0, pass: 0, hirePct: 0, passPct: 0, deduped: false });
+      setResult({ hire: 0, pass: 0, hirePct: 0, passPct: 0 });
     } finally {
       setBusy(false);
     }
   }
 
-  if (loading) {
-    return (
-      <div className="mx-auto max-w-xl px-4 py-12 text-center text-gray-300">
-        Loading feed…
-      </div>
-    );
-  }
-
-  if (loadError) {
-    return (
-      <div className="mx-auto max-w-xl px-4 py-12 text-center text-gray-300">
-        <div className="text-white font-semibold">Failed to load feed</div>
-        <div className="mt-2 text-xs text-gray-400">{loadError}</div>
-      </div>
-    );
-  }
-
-  if (!current) {
-    return (
-      <div className="mx-auto max-w-xl px-4 py-12 text-center text-gray-300">
-        No creators/videos found in KV.
-      </div>
-    );
-  }
-
-  const hirePct = result?.hirePct ?? 0;
-  const passPct = result?.passPct ?? 0;
+  if (loading) return <div className="text-center py-20 font-black italic uppercase animate-pulse">Scouting...</div>;
+  if (loadError || !current) return <div className="text-center py-20 text-zinc-500 underline uppercase">{loadError || "Empty Feed"}</div>;
 
   return (
-    <div className="mx-auto max-w-xl px-4 py-10">
+    <div className="mx-auto max-w-md px-4 py-8">
       <AnimatePresence mode="wait">
         <motion.div
-          key={`${currentHandle}:${currentVideoId ?? index}`}
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -14 }}
-          transition={{ duration: 0.18 }}
-          className="rounded-3xl bg-zinc-900/70 p-4 shadow-xl ring-1 ring-white/10"
-          onClick={() => {
-            if (result && !busy) next();
-          }}
-          role="button"
+          key={currentVideoId ?? index}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 1.1 }}
+          transition={{ duration: 0.2 }}
+          className="relative"
         >
-          {/* Header */}
-          <div className="flex items-start justify-between gap-3">
-            {/*<div>
-              <div className="text-lg font-semibold text-white">{currentHandle}</div>
-              {/*<div className="mt-1 text-xs text-gray-500">{subtitle}</div>
-            </div> */}
-
-            <div className="text-right text-xs text-gray-500">
-              {index + 1}/{feed.length}
-            </div>
-          </div>
-         {/* Vote Buttons */}
-          {!result ? (
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              <button
-                disabled={busy}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  vote("hire");
-                }}
-                className="rounded-2xl bg-white py-4 text-lg font-bold text-black disabled:opacity-60"
+          {/* Main Neo-Brutalist Container */}
+          <div className="border-[4px] border-black bg-white shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] p-5">
+            
+            {/* Top Bar */}
+            <div className="flex justify-between items-center mb-5">
+              <div className="bg-black text-white px-3 py-1 text-[10px] font-black uppercase tracking-widest">
+                UGC SCOUT v1.0
+              </div>
+              <div className="font-black text-black tabular-nums italic">
+                {/*{index + 1}/{feed.length}*/}
+                 <button
+                onClick={openInTikTok}
+                className="w-full text-center font-black uppercase text-[11px] tracking-tighter text-black underline decoration-[3px] decoration-[#ADFF00] underline-offset-4"
               >
-                VIRAL ✅
+                {openLabel}
               </button>
-              <button
-                disabled={busy}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  vote("pass");
-                }}
-                className="rounded-2xl bg-zinc-800 py-4 text-lg font-bold text-white disabled:opacity-60"
-              >
-                FLOP ❌
-              </button>
+              </div>
             </div>
-          ) : null}
 
-          {/* Crowd verdict */}
-          {result ? (
-            <div className="mt-4 rounded-2xl bg-black/30 p-4 ring-1 ring-white/10">
-              <div className="mb-2 text-sm font-semibold text-white">
-                Crowd verdict
-                {result.deduped ? (
-                  <span className="ml-2 text-xs font-normal text-gray-400">
-                    (your vote already counted)
-                  </span>
-                ) : null}
+            {/* TikTok Embed Area */}
+            <div className="border-[4px] border-black bg-zinc-100 h-[460px] w-full overflow-hidden relative mb-6">
+              <div className="h-full w-full" onClick={(e) => e.stopPropagation()}>
+                <TikTokEmbed key={currentVideoId} videoUrl={current.tiktok_link} />
               </div>
+            </div>
 
-              <div className="h-3 overflow-hidden rounded-full bg-zinc-800">
-                <div
-                  className="h-3 bg-white"
-                  style={{ width: `${Math.max(0, Math.min(100, hirePct))}%` }}
-                />
-              </div>
-
-              <div className="mt-2 flex justify-between text-xs text-gray-300">
-                <span>
-                  Viral {hirePct}% ({result.hire})
-                </span>
-                <span>
-                  Flop {passPct}% ({result.pass})
-                </span>
-              </div>
-
-              <div className="mt-4">
+            {/* Voting or Results */}
+            {!result ? (
+              <div className="grid grid-cols-2 gap-4">
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    next();
-                  }}
-                  className="w-full rounded-2xl bg-white py-3 font-bold text-black"
+                  disabled={busy}
+                  onClick={(e) => { e.stopPropagation(); vote("hire"); }}
+                  className="bg-[#ADFF00] border-[4px] border-black py-4 text-2xl font-black uppercase italic shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all"
                 >
-                  Next →
+                  Viral 🔥
+                </button>
+                <button
+                  disabled={busy}
+                  onClick={(e) => { e.stopPropagation(); vote("pass"); }}
+                  className="bg-zinc-200 border-[4px] border-black py-4 text-2xl font-black uppercase italic shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all text-zinc-500"
+                >
+                  Flop 🧊
                 </button>
               </div>
+            ) : (
+              <div className="border-[4px] border-black p-4 bg-zinc-50 space-y-4">
+                <div className="flex justify-between font-black uppercase text-xs">
+                  <span>Audience Verdict</span>
+                  <span className="text-zinc-400">{result.hire + result.pass} Votes</span>
+                </div>
+                
+                <div className="h-10 border-[4px] border-black bg-white flex overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${result.hirePct}%` }}
+                    className="h-full bg-[#ADFF00] border-r-[4px] border-black" 
+                  />
+                </div>
+                
+                <div className="flex justify-between font-black text-[10px] uppercase">
+                  <span>Viral: {result.hirePct}%</span>
+                  <span>Flop: {result.passPct}%</span>
+                </div>
 
-              <p className="mt-3 text-center text-xs text-gray-500">
-                Tip: you can also tap the card to go Next.
-              </p>
-            </div>
-          ) : (
-            <div className="mt-3 text-center text-xs text-gray-500">{/*Vote after watching.*/}</div>
-          )} 
-          
+                <button
+                  onClick={(e) => { e.stopPropagation(); next(); }}
+                  className="w-full bg-black text-white py-4 font-black uppercase italic text-lg hover:bg-zinc-800 transition-all"
+                >
+                  Next Candidate →
+                </button>
+              </div>
+            )}
 
-          {/* TikTok */}
-          <div className="mt-4 overflow-hidden rounded-2xl bg-black/30 ring-1 ring-white/10">
-            <div className="px-2 pb-3 pt-2" onClick={(e) => e.stopPropagation()}>
-              <TikTokEmbed
-                key={currentVideoId ?? current.tiktok_link}
-                videoUrl={current.tiktok_link}
-              />
+            {/* Bottom Actions */}
+            <div className="mt-6 space-y-3">
+             
+
+              {!result && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); next(); }}
+                  className="w-full text-center font-black uppercase text-[10px] text-zinc-400 hover:text-black transition-colors"
+                >
+                  Skip this one
+                </button>
+              )}
             </div>
           </div>
 
-         
-          {/* ✅ Open in TikTok CTA (MOVED TO TOP) */}
-          <div className="mt-3" onClick={(e) => e.stopPropagation()}>
-            <button
-              onClick={openInTikTok}
-              className="w-full rounded-2xl bg-white py-3 text-base font-extrabold text-black hover:opacity-95 disabled:opacity-60"
-              disabled={busy}
-            >
-              {openLabel}
-            </button>
-            {/*<p className="mt-2 text-center text-xs text-gray-500">{openHint}</p>*/}
-          </div>
-          {/* Optional skip before voting */}
-          {!result ? (
-            <div className="mt-3 text-center">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  next();
-                }}
-                disabled={busy}
-                className="text-xs text-gray-400 underline underline-offset-4 disabled:opacity-60"
-              >
-                Skip → next
-              </button>
-            </div>
-          ) : null}
+          {/* Background Offset Decor */}
+          <div className="absolute -top-3 -left-3 -z-10 w-full h-full border-[2px] border-black/10" />
         </motion.div>
       </AnimatePresence>
     </div>
