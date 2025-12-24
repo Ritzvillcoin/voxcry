@@ -1,10 +1,9 @@
-// src/app/api/feed/route.ts
 import { NextResponse } from "next/server";
 import { kv } from "@vercel/kv";
 
 type FeedItem = {
-  creator_handle: string; // "@infiniteelliott"
-  tiktok_link: string;    // "https://www.tiktok.com/@infiniteelliott/video/7584..."
+  creator_handle: string; 
+  tiktok_link: string;   
 };
 
 function hasKV() {
@@ -27,15 +26,25 @@ export async function GET(req: Request) {
 
   const { searchParams } = new URL(req.url);
   const limit = Math.max(1, Math.min(500, Number(searchParams.get("limit") ?? 200)));
+  
+  // NEW: Capture the 'focus' parameter from the URL
+  const focusRaw = searchParams.get("focus");
 
-  // 1) newest creators first
-  const handles = (await kv.zrange<string[]>("creators:z", 0, limit - 1, {
+  // 1) Get the newest creator handles
+  let handles = (await kv.zrange<string[]>("creators:z", 0, limit - 1, {
     rev: true,
   })) ?? [];
 
+  // 2) Focus Logic: If a handle is requested, prioritize it
+  if (focusRaw) {
+    const focusHandle = normalizeHandle(focusRaw);
+    // Remove it from its current position and put it at index 0
+    const otherHandles = handles.filter(h => normalizeHandle(h) !== focusHandle);
+    handles = [focusHandle, ...otherHandles];
+  }
+
   const items: FeedItem[] = [];
 
-  // 2) for each creator, pick newest video first
   for (const rawHandle of handles) {
     const handle = normalizeHandle(rawHandle);
 
@@ -49,7 +58,6 @@ export async function GET(req: Request) {
     const videoId = videoIds[0];
     if (!videoId) continue;
 
-    // Option A: if you store a video record
     const videoBase = await kv.get<{ tiktok_url?: string }>(`video:base:${videoId}`);
     const tiktokUrl =
       videoBase?.tiktok_url ??

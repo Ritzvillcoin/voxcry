@@ -1,3 +1,4 @@
+import Link from "next/link"; // Add this import
 export default function Footer() {
   return (
     <footer className="mt-24 border-t-[4px] border-black bg-black py-12">
@@ -16,19 +17,19 @@ export default function Footer() {
 
           {/* NAV LINKS */}
           <div className="flex gap-6">
-            <a href="/term" className="text-sm font-black uppercase italic text-white hover:text-[#ADFF00] transition-colors">
-              Terms
-            </a>
-            <a href="/privacy" className="text-sm font-black uppercase italic text-white hover:text-[#ADFF00] transition-colors">
-              Privacy
-            </a>
+           <Link href="/term" className="hover:opacity-100 transition-opacity">
+          Terms
+        </Link>
+        <Link href="/privacy" className="hover:opacity-100 transition-opacity">
+          Privacy
+        </Link>
           </div>
 
           {/* COPYRIGHT BLOCK */}
           <div className="text-center md:text-right">
             <p className="text-[10px] font-black uppercase text-zinc-400">
-              © {new Date().getFullYear()} Voxcry Corp. <br />
-              <span className="text-[#ADFF00]">Built for the viral age.</span>
+              © {new Date().getFullYear()} Voxcry<br />
+              <span className="text-[#ADFF00]">Built for the viral age</span>
             </p>
           </div>
 

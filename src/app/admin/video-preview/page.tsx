@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import TikTokEmbed from "@/app/components/TikTokEmbed";
+import Link from "next/link";
 
 type Item = {
   video_id: string;
@@ -61,75 +62,94 @@ export default function AdminVideoPreviewPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10">
-      <div className="rounded-3xl bg-zinc-900/70 p-5 shadow-xl ring-1 ring-white/10">
-         <div className="flex items-center justify-between gap-3">
-          <div className="text-xl font-bold text-white">Check My Video</div>
+    <div className="mx-auto max-w-2xl px-4 py-12">
+      {/* MAIN CONTAINER */}
+      <div className="border-[4px] border-black bg-white p-6 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
+        
+        {/* HEADER SECTION */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-[4px] border-black pb-6 mb-6">
+          <div>
+            <h1 className="text-3xl font-black uppercase italic tracking-tighter">
+              Check My Video
+            </h1>
+            <p className="text-[11px] font-bold uppercase text-zinc-500 mt-1">
+              Admin Debugger v1.0
+            </p>
+          </div>
 
-          <a
-            href="https://voxcry.com"
-            className="text-sm text-gray-300 underline underline-offset-4 hover:text-white"
-            title="Back to VoxCry"
+          <Link
+            href="/"
+            className="inline-block bg-black text-white px-4 py-2 font-black uppercase italic text-xs shadow-[4px_4px_0px_0px_rgba(173,255,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
           >
-            ← Back to VoxCry
-          </a>
-        </div>
-        <div className="mt-1 text-sm text-gray-400">
-          Enter a handle to load the newest video and preview in the embed player.
+            ← Back to Feed
+          </Link>
         </div>
 
-        <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-[1fr_140px]">
+        {/* INPUT SECTION */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_160px]">
           <input
             value={handle}
             onChange={(e) => setHandle(e.target.value)}
             placeholder="@infiniteelliott"
-            className="w-full rounded-xl bg-zinc-800 px-3 py-3 text-white outline-none ring-1 ring-white/10"
+            className="w-full border-[3px] border-black bg-zinc-50 px-4 py-4 font-bold placeholder:text-zinc-400 outline-none focus:bg-[#ADFF00]/10 transition-colors"
           />
 
           <button
             onClick={load}
             disabled={loading}
-            className="w-full rounded-2xl bg-white py-3 font-bold text-black shadow-sm active:scale-[0.99] disabled:opacity-60"
+            className="w-full border-[3px] border-black bg-[#ADFF00] py-4 font-black uppercase italic text-lg shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1 disabled:opacity-50 transition-all"
           >
-            {loading ? "Loading…" : "Load latest"}
+            {loading ? "..." : "LOAD SCAN"}
           </button>
         </div>
 
-        {error ? (
-          <div className="mt-4 rounded-2xl bg-black/30 p-4 text-sm text-red-200 ring-1 ring-white/10">
-            {error}
+        {/* STATUS MESSAGES */}
+        {error && (
+          <div className="mt-6 border-[3px] border-black bg-red-100 p-4 font-bold text-red-600 uppercase text-xs italic">
+            Error: {error}
           </div>
-        ) : null}
+        )}
 
-        {!loading && !error && !item ? (
-          <div className="mt-4 rounded-2xl bg-black/30 p-4 text-sm text-gray-400 ring-1 ring-white/10">
-            No video loaded yet.
+        {!loading && !error && !item && (
+          <div className="mt-6 border-[3px] border-black bg-zinc-100 p-8 text-center">
+            <p className="text-xs font-black uppercase text-zinc-400 tracking-widest italic">
+              System Idle. Awaiting Handle.
+            </p>
           </div>
-        ) : null}
+        )}
 
-        {item ? (
-          <div className="mt-6 overflow-hidden rounded-2xl bg-black/30 ring-1 ring-white/10">
-            <div className="px-2 pb-3 pt-2">
-              <TikTokEmbed videoUrl={item.tiktok_url} />
+        {/* VIDEO PREVIEW RESULT */}
+        {item && (
+          <div className="mt-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
+            <div className="border-[4px] border-black bg-black p-2 shadow-[10px_10px_0px_0px_rgba(0,0,0,0.05)]">
+               <TikTokEmbed videoUrl={item.tiktok_url} />
             </div>
 
-            <div className="flex items-center justify-between px-4 pb-4 text-xs text-gray-400">
-              <div>post_id: {item.video_id}</div>
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-4 border-[3px] border-black bg-zinc-50 p-4">
+              <div>
+                <p className="text-[10px] font-black uppercase text-zinc-400">Database Entry</p>
+                <p className="font-mono text-xs font-bold">{item.video_id}</p>
+              </div>
+              
               <a
                 href={item.tiktok_url}
                 target="_blank"
                 rel="noreferrer"
-                className="underline underline-offset-4"
+                className="bg-black text-white px-4 py-2 font-black uppercase italic text-[11px] hover:bg-[#ADFF00] hover:text-black transition-colors"
               >
-                Open on TikTok →
+                Open Source URL ↗
               </a>
             </div>
           </div>
-        ) : null}
+        )}
       </div>
+
+      {/* FOOTER DECORATION */}
+      <p className="mt-8 text-center text-[10px] font-black uppercase text-zinc-400 italic tracking-[0.3em]">
+        VoxCry Internal Verification System
+      </p>
     </div>
   );
 }
-
 
 
