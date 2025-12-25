@@ -1,14 +1,16 @@
 import { NextResponse } from "next/server";
 import { kv } from "@vercel/kv";
 
+// 1. Define types to satisfy the TypeScript compiler
 type FeedItem = {
   creator_handle: string; 
   tiktok_link: string;   
 };
 
-function hasKV() {
-  return Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
-}
+type VideoMetadata = {
+  tiktok_url?: string;
+  added_at?: number;
+};
 
 function normalizeHandle(handle: string) {
   const h = (handle || "").trim();
@@ -20,54 +22,74 @@ function handleForUrl(handle: string) {
 }
 
 export async function GET(req: Request) {
-  if (!hasKV()) {
-    return NextResponse.json({ items: [] as FeedItem[] }, { status: 200 });
-  }
+  try {
+    const { searchParams } = new URL(req.url);
+    
+    // Set a sensible limit (50 is optimal for speed and UX)
+    const limit = Math.max(1, Math.min(100, Number(searchParams.get("limit") ?? 50)));
+    const focusRaw = searchParams.get("focus");
 
-  const { searchParams } = new URL(req.url);
-  const limit = Math.max(1, Math.min(500, Number(searchParams.get("limit") ?? 200)));
-  
-  // NEW: Capture the 'focus' parameter from the URL
-  const focusRaw = searchParams.get("focus");
+    // 2. Fetch the Top Handles from your ladder
+    let handles = (await kv.zrange<string[]>("creators:z", 0, limit - 1, {
+      rev: true,
+    })) ?? [];
 
-  // 1) Get the newest creator handles
-  let handles = (await kv.zrange<string[]>("creators:z", 0, limit - 1, {
-    rev: true,
-  })) ?? [];
+    // 3. Inject Scout Target if it's provided and not already at the top
+    if (focusRaw) {
+      const focusHandle = normalizeHandle(focusRaw);
+      // Remove the handle if it exists elsewhere in the list to avoid duplicates
+      const otherHandles = handles.filter(h => normalizeHandle(h) !== focusHandle);
+      // Put the scouted handle at Index 0
+      handles = [focusHandle, ...otherHandles];
+    }
 
-  // 2) Focus Logic: If a handle is requested, prioritize it
-  if (focusRaw) {
-    const focusHandle = normalizeHandle(focusRaw);
-    // Remove it from its current position and put it at index 0
-    const otherHandles = handles.filter(h => normalizeHandle(h) !== focusHandle);
-    handles = [focusHandle, ...otherHandles];
-  }
+    if (handles.length === 0) {
+      return NextResponse.json({ items: [] });
+    }
 
-  const items: FeedItem[] = [];
-
-  for (const rawHandle of handles) {
-    const handle = normalizeHandle(rawHandle);
-
-    const videoIds = (await kv.zrange<string[]>(
-      `creator:videos:z:${handle}`,
-      0,
-      0,
-      { rev: true }
-    )) ?? [];
-
-    const videoId = videoIds[0];
-    if (!videoId) continue;
-
-    const videoBase = await kv.get<{ tiktok_url?: string }>(`video:base:${videoId}`);
-    const tiktokUrl =
-      videoBase?.tiktok_url ??
-      `https://www.tiktok.com/@${handleForUrl(handle)}/video/${videoId}`;
-
-    items.push({
-      creator_handle: handle,
-      tiktok_link: tiktokUrl,
+    // 4. PIPELINE 1: Get the LATEST video ID for every handle in a single batch
+    const pipe1 = kv.pipeline();
+    handles.forEach((h) => {
+      pipe1.zrange(`creator:videos:z:${normalizeHandle(h)}`, 0, 0, { rev: true });
     });
-  }
+    
+    // Executing the pipeline returns an array of arrays (since zrange returns a list)
+    const allVideoIdsResults = await pipe1.exec<string[][]>();
 
-  return NextResponse.json({ items }, { status: 200 });
+    // 5. PIPELINE 2: Get the metadata for those specific video IDs
+    const pipe2 = kv.pipeline();
+    const activeMapping: { handle: string; id: string }[] = [];
+
+    allVideoIdsResults.forEach((ids, index) => {
+      // Check if this handle actually has a video
+      if (ids && ids[0]) {
+        const id = ids[0];
+        activeMapping.push({ handle: handles[index], id });
+        pipe2.get<VideoMetadata>(`video:base:${id}`);
+      }
+    });
+
+    const allMeta = await pipe2.exec<(VideoMetadata | null)[]>();
+
+    // 6. Map back to the exact format the Frontend expects (FeedItem[])
+    const items: FeedItem[] = activeMapping.map((map, i) => {
+      const videoBase = allMeta[i];
+      
+      // Use the stored URL if available, otherwise fallback to standard TikTok structure
+      const tiktokUrl =
+        videoBase?.tiktok_url ??
+        `https://www.tiktok.com/@${handleForUrl(map.handle)}/video/${map.id}`;
+
+      return {
+        creator_handle: map.handle,
+        tiktok_link: tiktokUrl,
+      };
+    });
+
+    return NextResponse.json({ items }, { status: 200 });
+  } catch (error) {
+    console.error("Feed API Error:", error);
+    // Returning an empty list on error prevents the frontend from crashing
+    return NextResponse.json({ items: [] }, { status: 500 });
+  }
 }

@@ -62,7 +62,7 @@ export default function HirePassFeed(props: HirePassFeedProps) {
 }
 
 function FeedContent({
-  limit = 200,
+  limit = 50,
   openLabel = "VIEW ON TIKTOK",
 }: HirePassFeedProps) {
   const searchParams = useSearchParams();
