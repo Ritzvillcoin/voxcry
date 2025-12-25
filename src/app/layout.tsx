@@ -42,9 +42,9 @@ export const metadata: Metadata = {
 
   twitter: {
     card: "summary_large_image",
-    title: "VoxCry — Find Vetted TikTok & UGC Creators",
+    title: "VoxCry — Find winning UGC formats & rising Creators",
     description:
-      "Discover vetted creators and post briefs to get fast replies. Simple creator screening and a creator-first workflow.",
+      "Discover winning UGC formats from rising creators.",
     images: ["/og.png"],
   },
 
@@ -57,7 +57,7 @@ export const metadata: Metadata = {
     "influencer marketing",
     "UGC briefs",
     "brand creator matching",
-    "creator directory",
+    "Winning Formats",
   ],
 
   robots: {

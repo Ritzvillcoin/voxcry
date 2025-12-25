@@ -9,6 +9,7 @@ import { useSearchParams } from "next/navigation";
 type FeedItem = {
   creator_handle: string;
   tiktok_link: string;
+  format?: string; // ✅ NEW
 };
 
 type VoteResult = {
@@ -61,10 +62,7 @@ export default function HirePassFeed(props: HirePassFeedProps) {
   );
 }
 
-function FeedContent({
-  limit = 50,
-  openLabel = "VIEW ON TIKTOK",
-}: HirePassFeedProps) {
+function FeedContent({ limit = 50, openLabel = "VIEW ON TIKTOK" }: HirePassFeedProps) {
   const searchParams = useSearchParams();
   const scoutTarget = searchParams.get("scout");
 
@@ -114,15 +112,23 @@ function FeedContent({
   }, [limit, scoutTarget]);
 
   const current = feed[index];
+
   const currentHandle = useMemo(
     () => (current ? normalizeHandle(current.creator_handle) : ""),
     [current]
   );
+
   const currentVideoId = useMemo(
     () => (current ? extractVideoId(current.tiktok_link) : null),
     [current]
   );
+
   const cleanHandle = useMemo(() => currentHandle.replace("@", ""), [currentHandle]);
+
+  const currentFormat = useMemo(() => {
+    const f = (current?.format || "").trim();
+    return f || "—";
+  }, [current]);
 
   function next() {
     if (!feed.length) return;
@@ -181,7 +187,11 @@ function FeedContent({
   }
 
   if (loading)
-    return <div className="text-center py-20 font-black italic uppercase animate-pulse">Scouting...</div>;
+    return (
+      <div className="text-center py-20 font-black italic uppercase animate-pulse">
+        Scouting...
+      </div>
+    );
 
   if (loadError || !current)
     return (
@@ -190,7 +200,6 @@ function FeedContent({
       </div>
     );
 
-  // --- rest of your JSX stays the same ---
   return (
     <div className="relative mx-auto max-w-md px-4 py-8">
       <AnimatePresence mode="wait">
@@ -201,9 +210,8 @@ function FeedContent({
           exit={{ opacity: 0, scale: 1.1 }}
           className="relative"
         >
-          {/* ...keep your existing JSX exactly... */}
           <div className="border-[4px] border-black bg-white shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] p-5">
-            <div className="flex justify-between items-center mb-5">
+            <div className="flex justify-between items-center mb-3">
               <div className="bg-black text-white px-3 py-1 text-[10px] font-black uppercase">
                 {scoutTarget === cleanHandle ? "CHALLENGE MODE ⚔️" : "UGC SCOUT v1.0"}
               </div>
@@ -215,8 +223,21 @@ function FeedContent({
               </button>
             </div>
 
+            {/* ✅ NEW: Format label */}
+            <div className="mb-4 flex items-center gap-2">
+              <span className="bg-[#ADFF00] border-[3px] border-black px-2 py-[2px] text-[10px] font-black uppercase">
+                FORMAT
+              </span>
+              <span className="text-[12px] font-black uppercase text-black">
+                {currentFormat}
+              </span>
+            </div>
+
             <div className="border-[4px] border-black bg-zinc-100 h-[460px] w-full overflow-hidden relative mb-6">
-              <TikTokEmbed key={currentVideoId ?? current.tiktok_link} videoUrl={current.tiktok_link} />
+              <TikTokEmbed
+                key={currentVideoId ?? current.tiktok_link}
+                videoUrl={current.tiktok_link}
+              />
             </div>
 
             {!result ? (

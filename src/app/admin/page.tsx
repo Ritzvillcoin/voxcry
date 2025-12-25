@@ -25,15 +25,35 @@ function extractTikTokHandle(tiktokUrl: string) {
   return raw ? normalizeHandle(raw) : "";
 }
 
+const FORMAT_OPTIONS = [
+  "POV / Relatable",
+  "Result-first (Before/After)",
+  "Tutorial (Step-by-step)",
+  "Problem → Solution",
+  "Product demo / Review",
+  "Storytime",
+  "Hot take / Opinion",
+  "List / Ranking",
+  "Reaction / Stitch",
+  "Challenge / Trend",
+  "Text-on-screen montage",
+] as const;
+
+function normalizeFormat(input: string) {
+  return (input || "").trim().replace(/\s+/g, " ");
+}
+
 export default function AdminAddVideoPage() {
   const [adminToken, setAdminToken] = useState("");
   const [tiktokUrl, setTiktokUrl] = useState("");
+  const [format, setFormat] = useState<string>(FORMAT_OPTIONS[0]);
 
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string>("");
 
   const handle = useMemo(() => extractTikTokHandle(tiktokUrl), [tiktokUrl]);
   const postId = useMemo(() => extractTikTokPostId(tiktokUrl), [tiktokUrl]);
+  const cleanFormat = useMemo(() => normalizeFormat(format), [format]);
 
   async function submit() {
     setMsg("");
@@ -43,11 +63,15 @@ export default function AdminAddVideoPage() {
       return;
     }
     if (!tiktokUrl.trim() || !postId) {
-      setMsg("TikTok URL must be a valid video URL: /@handle/video/<id>");
+      setMsg("TikTok URL must be a valid post URL: /@handle/(video|photo)/<id>");
       return;
     }
     if (!handle) {
       setMsg("Could not parse creator handle from the TikTok URL.");
+      return;
+    }
+    if (!cleanFormat) {
+      setMsg("Missing format.");
       return;
     }
 
@@ -60,18 +84,29 @@ export default function AdminAddVideoPage() {
           adminToken: adminToken.trim(),
           creator_handle: handle,
           tiktok_url: tiktokUrl.trim(),
+          format: cleanFormat, // ✅ NEW
         }),
       });
 
-      const data = await res.json();
+      const data = (await res.json()) as {
+        ok?: boolean;
+        error?: string;
+        handle?: string;
+        video_id?: string;
+        added_at?: number;
+        format?: string;
+      };
 
-      if (!res.ok) {
+      if (!res.ok || !data.ok) {
         setMsg(`Error: ${data?.error || res.status}`);
         return;
       }
 
-      setMsg(`✅ Added ${data.handle} video ${data.video_id} (ts=${data.added_at})`);
+      setMsg(
+        `✅ Added ${data.handle} video ${data.video_id} | format: ${data.format} (ts=${data.added_at})`
+      );
       setTiktokUrl("");
+      // keep last selected format (faster data entry)
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : "request_failed";
       setMsg(`Error: ${message}`);
@@ -113,6 +148,33 @@ export default function AdminAddVideoPage() {
           </div>
         </label>
 
+        {/* ✅ NEW: Format */}
+        <label className="block">
+          <div className="text-xs text-gray-400">Format</div>
+          <select
+            value={format}
+            onChange={(e) => setFormat(e.target.value)}
+            className="mt-2 w-full rounded-xl bg-zinc-800 px-3 py-2 text-white outline-none ring-1 ring-white/10"
+          >
+            {FORMAT_OPTIONS.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+            <option value="Other">Other</option>
+          </select>
+
+          {/* Optional: allow custom format when "Other" selected */}
+          {format === "Other" ? (
+            <input
+              value={cleanFormat === "Other" ? "" : cleanFormat}
+              onChange={(e) => setFormat(e.target.value)}
+              placeholder="Type a custom format (e.g., Myth-bust)"
+              className="mt-2 w-full rounded-xl bg-zinc-800 px-3 py-2 text-white outline-none ring-1 ring-white/10"
+            />
+          ) : null}
+        </label>
+
         <button
           disabled={busy}
           onClick={submit}
@@ -130,4 +192,5 @@ export default function AdminAddVideoPage() {
     </div>
   );
 }
+
 

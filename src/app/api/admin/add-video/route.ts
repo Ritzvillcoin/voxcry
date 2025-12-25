@@ -15,7 +15,9 @@ function normalizeHandle(input: string) {
 // Accepts both:
 // - https://www.tiktok.com/@handle/video/123
 // - https://www.tiktok.com/@handle/photo/123
-function extractTikTokPostInfo(tiktokUrl: string): { postId: string; postType: "video" | "photo" } | null {
+function extractTikTokPostInfo(
+  tiktokUrl: string
+): { postId: string; postType: "video" | "photo" } | null {
   const m = (tiktokUrl || "").match(/\/(video|photo)\/(\d+)/);
   if (!m) return null;
   const postType = (m[1] as "video" | "photo") ?? "video";
@@ -24,10 +26,16 @@ function extractTikTokPostInfo(tiktokUrl: string): { postId: string; postType: "
   return { postId, postType };
 }
 
+// Optional: keep this loose so you can add/rename formats without redeploying validation.
+function normalizeFormat(input: string) {
+  return (input || "").trim().replace(/\s+/g, " ");
+}
+
 type Body = {
   adminToken: string;
   creator_handle: string; // "@handle" or "handle"
-  tiktok_url: string;     // full TikTok post URL (video or photo)
+  tiktok_url: string; // full TikTok post URL (video or photo)
+  format: string; // e.g. "Result-first", "POV", "Tutorial"
 };
 
 export async function POST(req: Request) {
@@ -46,14 +54,17 @@ export async function POST(req: Request) {
   const tiktokUrl = (body.tiktok_url || "").trim();
   const postInfo = extractTikTokPostInfo(tiktokUrl);
 
+  // NEW: format
+  const format = normalizeFormat(body.format || "");
+
   if (!handle) {
     return NextResponse.json({ ok: false, error: "missing_creator_handle" }, { status: 400 });
   }
   if (!tiktokUrl || !postInfo) {
-    return NextResponse.json(
-      { ok: false, error: "invalid_tiktok_post_url" },
-      { status: 400 }
-    );
+    return NextResponse.json({ ok: false, error: "invalid_tiktok_post_url" }, { status: 400 });
+  }
+  if (!format) {
+    return NextResponse.json({ ok: false, error: "missing_format" }, { status: 400 });
   }
 
   const { postId, postType } = postInfo;
@@ -70,12 +81,14 @@ export async function POST(req: Request) {
   await kv.zadd(`creator:videos:z:${handle}`, { score: now, member: postId });
 
   // 4) post record (video or photo). Keep field name "video_id" for compatibility.
+  // NEW: store format on the video record
   await kv.set(`video:base:${postId}`, {
     video_id: postId,
     creator_handle: handle,
     tiktok_url: tiktokUrl,
     added_at: now,
-    post_type: postType, // optional metadata
+    post_type: postType,
+    format, // ✅ NEW
   });
 
   return NextResponse.json({
@@ -83,7 +96,9 @@ export async function POST(req: Request) {
     handle,
     video_id: postId,
     post_type: postType,
+    format, // ✅ NEW
     added_at: now,
   });
 }
+
 
