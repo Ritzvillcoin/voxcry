@@ -27,6 +27,10 @@ function extractTikTokHandle(tiktokUrl: string) {
 
 const FORMAT_OPTIONS = [
   "POV / Relatable",
+  "POV Relatable Roleplay (Talking-Head Skit)",
+  "POV Relatable (Hot Take Talking-Head)",
+  "Lifestyle Montage",
+  "Lifestyle Montage / Good Vibes (Trend Audio + Text)",
   "Result-first (Before/After)",
   "Tutorial (Step-by-step)",
   "Problem → Solution",

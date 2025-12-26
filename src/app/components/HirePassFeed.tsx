@@ -149,14 +149,14 @@ function FeedContent({ limit = 50, openLabel = "VIEW ON TIKTOK" }: HirePassFeedP
     if (navigator.share) {
       try {
         await navigator.share(shareData);
-      } catch (_err: unknown) {
+      } catch {
         // user cancelled share
       }
     } else {
       try {
         await navigator.clipboard.writeText(shareUrl);
         alert("Link copied! 📋");
-      } catch (_err: unknown) {
+      } catch {
         // clipboard blocked
       }
     }
@@ -211,11 +211,27 @@ function FeedContent({ limit = 50, openLabel = "VIEW ON TIKTOK" }: HirePassFeedP
           className="relative"
         >
           <div className="border-[4px] border-black bg-white shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] p-5">
-            <div className="flex justify-between items-center mb-3">
-              <div className="bg-black text-white px-3 py-1 text-[10px] font-black uppercase">
-                {scoutTarget === cleanHandle ? "CHALLENGE MODE ⚔️" : "UGC SCOUT v1.0"}
+            {/* TOP BAR */}
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="bg-black text-white px-3 py-1 text-[10px] font-black uppercase">
+                  {scoutTarget === cleanHandle ? "CHALLENGE MODE ⚔️" : "UGC SCOUT v1.0"}
+                </div>
+
+                {/* ✅ NEW: Skip button (works anytime, no vote required) */}
+                <button
+                  type="button"
+                  onClick={next}
+                  disabled={busy || feed.length <= 1}
+                  className="border-[3px] border-black bg-white px-2 py-[2px] text-[10px] font-black uppercase shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px] disabled:opacity-50"
+                  title="Skip to next"
+                >
+                  Skip →
+                </button>
               </div>
+
               <button
+                type="button"
                 onClick={() => window.open(current.tiktok_link, "_blank")}
                 className="font-black uppercase text-[11px] text-black underline decoration-[3px] decoration-[#ADFF00] underline-offset-4"
               >
@@ -223,14 +239,12 @@ function FeedContent({ limit = 50, openLabel = "VIEW ON TIKTOK" }: HirePassFeedP
               </button>
             </div>
 
-            {/* ✅ NEW: Format label */}
+            {/* FORMAT LABEL */}
             <div className="mb-4 flex items-center gap-2">
               <span className="bg-[#ADFF00] border-[3px] border-black px-2 py-[2px] text-[10px] font-black uppercase">
                 FORMAT
               </span>
-              <span className="text-[12px] font-black uppercase text-black">
-                {currentFormat}
-              </span>
+              <span className="text-[12px] font-black uppercase text-black">{currentFormat}</span>
             </div>
 
             <div className="border-[4px] border-black bg-zinc-100 h-[460px] w-full overflow-hidden relative mb-6">
@@ -281,12 +295,7 @@ function FeedContent({ limit = 50, openLabel = "VIEW ON TIKTOK" }: HirePassFeedP
                   SEND VIBE CHECK ⚡
                 </button>
 
-                <button
-                  onClick={next}
-                  className="w-full bg-black text-white py-4 font-black uppercase italic text-lg hover:bg-zinc-800 transition-colors"
-                >
-                  Next Candidate →
-                </button>
+                {/* ✅ Removed: "Next Candidate →" button */}
               </div>
             )}
           </div>
@@ -295,6 +304,7 @@ function FeedContent({ limit = 50, openLabel = "VIEW ON TIKTOK" }: HirePassFeedP
     </div>
   );
 }
+
 
 
 
