@@ -26,7 +26,9 @@ function extractTikTokHandle(tiktokUrl: string) {
 }
 
 const FORMAT_OPTIONS = [
-  "POV / Relatable",
+  "Christmas Propsal Gone Wrong",
+  "POV Relatable (Talking-Head Reaction/Meme)",
+  "POV relatable relationship humor (curiosity + payoff)",
   "POV Relatable Roleplay (Talking-Head Skit)",
   "POV Relatable (Hot Take Talking-Head)",
   "Lifestyle Montage",
@@ -36,6 +38,7 @@ const FORMAT_OPTIONS = [
   "Problem → Solution",
   "Product demo / Review",
   "Storytime",
+  "Talking-Head Intro (Big Text) + Question Prompt Hook",
   "Hot take / Opinion",
   "List / Ranking",
   "Reaction / Stitch",

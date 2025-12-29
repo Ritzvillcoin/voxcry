@@ -241,9 +241,9 @@ function FeedContent({ limit = 50, openLabel = "VIEW ON TIKTOK" }: HirePassFeedP
 
             {/* FORMAT LABEL */}
             <div className="mb-4 flex items-center gap-2">
-              <span className="bg-[#ADFF00] border-[3px] border-black px-2 py-[2px] text-[10px] font-black uppercase">
+              {/*<span className="bg-[#ADFF00] border-[3px] border-black px-2 py-[2px] text-[10px] font-black uppercase">
                 FORMAT
-              </span>
+              </span>*/}
               <span className="text-[12px] font-black uppercase text-black">{currentFormat}</span>
             </div>
 
