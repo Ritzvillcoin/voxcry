@@ -26,6 +26,8 @@ function extractTikTokHandle(tiktokUrl: string) {
 }
 
 const FORMAT_OPTIONS = [
+  " ",
+  "When Christmas exposes the family truth.",
   "Christmas Propsal Gone Wrong",
   "POV Relatable (Talking-Head Reaction/Meme)",
   "POV relatable relationship humor (curiosity + payoff)",
