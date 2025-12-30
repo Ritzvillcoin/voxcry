@@ -20,6 +20,12 @@ export default function Nav() {
          
         <div className="flex items-center gap-4">
           {/* ORIGINAL BUTTON: Check My Video */}
+           <Link 
+            href="/collections"
+            className="bg-black text-white border-[3px] border-black px-4 py-2 font-black text-xs uppercase italic shadow-[4px_4px_0px_0px_rgba(255,255,255,0.4)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+          >
+            Collections
+          </Link>
           <Link 
             href="/admin/video-preview"
             className="bg-black text-white border-[3px] border-black px-4 py-2 font-black text-xs uppercase italic shadow-[4px_4px_0px_0px_rgba(255,255,255,0.4)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
