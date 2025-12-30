@@ -26,7 +26,8 @@ function extractTikTokHandle(tiktokUrl: string) {
 }
 
 const FORMAT_OPTIONS = [
-  " ",
+  "POV Skit / Mini Story",
+  "Mini Series",
   "When Christmas exposes the family truth.",
   "Christmas Propsal Gone Wrong",
   "POV Relatable (Talking-Head Reaction/Meme)",

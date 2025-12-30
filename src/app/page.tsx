@@ -10,6 +10,7 @@ import Footer from "./components/Footer";
 //import CreatorDirectory from "./components/CreatorDirectory";
 import HirePassFeed from "./components/HirePassFeed";
 import SubstackSubscribe from "./components/SubstackSubscribe";
+import FeaturedCollection from "./components/FeaturedCollection"; // 1. Import it
 
 
 export default function Home() {
@@ -24,6 +25,8 @@ export default function Home() {
         {/*<FeatureGrid />
         <CTA />
         <Contact /> */}
+        {/* 2. Add the Collection link here */}
+        <FeaturedCollection />
         <SubstackSubscribe className="mb-10" />
          {/*<Logos /> */}
       </main>
