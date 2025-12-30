@@ -3,8 +3,21 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
+type Collection = {
+  slug: string;
+  title: string;
+  description: string;
+  videoIds: string[];
+  status: "PUBLISHED" | "DRAFT" | string;
+  added_at: number;
+};
+
+type CollectionsResponse =
+  | { ok: true; data: Collection[] }
+  | { ok: false; error: string };
+
 export default function CollectionsPage() {
-  const [items, setItems] = useState<any[]>([]);
+  const [items, setItems] = useState<Collection[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -12,7 +25,8 @@ export default function CollectionsPage() {
       try {
         const res = await fetch("/api/collections", { cache: "no-store" });
         if (!res.ok) return;
-        const json = await res.json();
+
+        const json = (await res.json()) as CollectionsResponse;
         if (json.ok) setItems(json.data || []);
       } finally {
         setLoading(false);
@@ -23,7 +37,6 @@ export default function CollectionsPage() {
   return (
     <main className="min-h-screen bg-black text-white p-6">
       <div className="max-w-3xl mx-auto">
-        {/* Back button */}
         <div className="mb-8">
           <Link
             href="/"
@@ -49,7 +62,7 @@ export default function CollectionsPage() {
                 className="block border-4 border-[#ADFF2F] p-6 hover:bg-[#ADFF2F] hover:text-black transition"
               >
                 <div className="text-xs font-mono uppercase tracking-widest opacity-70">
-                  {c.videoIds?.length || 0} VIDEOS • TIKTOK PACK
+                  {c.videoIds?.length || 0} VIDEOS • ARCHIVE_ENTRY
                 </div>
                 <div className="mt-2 text-2xl font-black">{c.title}</div>
                 <div className="mt-3 text-sm opacity-80 line-clamp-2">
@@ -63,4 +76,5 @@ export default function CollectionsPage() {
     </main>
   );
 }
+
 
