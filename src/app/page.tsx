@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Nav from "./components/Nav";
 import Hero from "./components/Hero";
 import Logos from "./components/Logos";
@@ -20,11 +21,27 @@ export default function Home() {
       <main>
         <Hero />
         <HirePassFeed />
-         {/*<CreatorDirectory />
-        <Generator /> */}
-        {/*<FeatureGrid />
-        <CTA />
-        <Contact /> */}
+         {/* ✅ INDEXABLE CONTENT (server-rendered) */}
+        <section className="mx-auto max-w-5xl px-6 py-10">
+          <p className="mt-4 text-zinc-400 text-lg max-w-2xl">
+            Meme Therapy + mini shows, curated into 5-video packs. Pick a vibe, binge the clips,
+            and share the pack with friends.
+          </p>
+
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link
+              href="/collections"
+              className="inline-flex items-center gap-2 border-4 border-[#ADFF2F] px-5 py-3 font-black uppercase hover:bg-[#ADFF2F] hover:text-black transition"
+            >
+              Browse Collections →
+            </Link>            
+          </div>
+
+          <p className="mt-6 text-[11px] font-mono uppercase tracking-widest text-zinc-600">
+            New packs added regularly 
+          </p>
+        </section>
+
         {/* 2. Add the Collection link here */}
         <FeaturedCollection />
         <SubstackSubscribe className="mb-10" />

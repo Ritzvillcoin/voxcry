@@ -19,10 +19,6 @@ export const metadata: Metadata = {
   description:
     "Discover vetted TikTok and UGC creators and post briefs to get fast replies. VoxCry helps brands and agencies shortlist creators with simple performance signals and a creator-first workflow.",
 
-  alternates: {
-    canonical: "/",
-  },
-
   openGraph: {
     type: "website",
     url: "https://voxcry.com",

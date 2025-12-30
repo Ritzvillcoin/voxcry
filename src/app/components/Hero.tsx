@@ -21,7 +21,7 @@ export default function Hero() {
 
       <div className="mx-auto mt-12 max-w-2xl border-[4px] border-black bg-black p-6 shadow-[10px_10px_0px_0px_rgba(173,255,0,0.3)]">
         <p className="text-lg md:text-xl font-bold leading-relaxed text-[#ADFF00] uppercase italic">
-         Discover the videos everyone’s watching
+         Discover rising creators. Binge a pack.
         </p>
       </div>
 
