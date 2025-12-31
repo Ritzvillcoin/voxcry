@@ -12,48 +12,45 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://voxcry.com"),
 
   title: {
-    default: "VoxCry — Find Vetted TikTok & UGC Creators",
+    default: "VoxCry — Discover rising creators and curated TikTok video packs",
     template: "%s | VoxCry",
   },
 
   description:
-    "Discover vetted TikTok and UGC creators and post briefs to get fast replies. VoxCry helps brands and agencies shortlist creators with simple performance signals and a creator-first workflow.",
+    "Discover curated TikTok video collections featuring rising UGC creators. Browse what’s trending, explore creators fast, and jump straight to the source on TikTok.",
 
   openGraph: {
     type: "website",
     url: "https://voxcry.com",
     siteName: "VoxCry",
-    title: "VoxCry — Find Vetted TikTok & UGC Creators",
+    title: "VoxCry — Discover rising creators. Browse curated TikTok video packs",
     description:
-      "Discover vetted creators and post briefs to get fast replies. Simple creator screening and a creator-first workflow.",
+      "Discover curated TikTok video collections featuring rising UGC creators. Browse what’s trending, explore creators fast, and jump straight to the source on TikTok.",
     images: [
       {
         url: "/og.png", // add this image in /public
         width: 1200,
         height: 630,
-        alt: "VoxCry — Vetted TikTok & UGC creators",
+        alt: "VoxCry — Discover TikTok video pack & UGC creators",
       },
     ],
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "VoxCry — Find winning UGC formats & rising Creators",
+    title: "VoxCry — Discover TikTok video pack & UGC creators",
     description:
-      "Discover winning UGC formats from rising creators.",
+      "Discover curated TikTok video collections featuring rising UGC creators. Browse what’s trending, explore creators fast, and jump straight to the source on TikTok.",
     images: ["/og.png"],
   },
 
   // Keep keywords short + realistic (Google mostly ignores keywords meta anyway)
   keywords: [
     "UGC creators",
-    "TikTok creators",
-    "creator vetting",
-    "creator screening",
+    "TikTok Video Pack",
     "influencer marketing",
-    "UGC briefs",
-    "brand creator matching",
-    "Winning Formats",
+    "Meme Therapy",
+    "mini shows",
   ],
 
   robots: {
