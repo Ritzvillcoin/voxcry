@@ -1,9 +1,10 @@
 import { ImageResponse } from 'next/og';
 
+// Route segment config
 export const runtime = 'edge';
 
 // Image metadata
-export const alt = 'VoxCry Collection Pack';
+export const alt = 'VoxCry Collection';
 export const size = {
   width: 1200,
   height: 630,
@@ -12,78 +13,122 @@ export const size = {
 export const contentType = 'image/png';
 
 export default async function Image({ params }: { params: { slug: string } }) {
-  // Fetch the collection data to get the title
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/collection/${params.slug}`);
-  const json = await res.json();
-  const collection = json.data;
+  const { slug } = params;
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
-  return new ImageResponse(
-    (
-      // This is essentially HTML/CSS that gets turned into a PNG
-      <div
-        style={{
-          background: 'black',
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '40px',
-        }}
-      >
-        {/* The Neon Green Border Frame */}
+  try {
+    // 1. Fetch data from your API
+    const res = await fetch(`${baseUrl}/api/collection/${slug}`);
+    const json = await res.json();
+    const collection = json.data;
+
+    return new ImageResponse(
+      (
+        // Main Container
         <div
           style={{
+            height: '100%',
+            width: '100%',
             display: 'flex',
             flexDirection: 'column',
-            width: '100%',
-            height: '100%',
-            border: '8px solid #ADFF2F',
-            padding: '60px',
-            position: 'relative',
+            alignItems: 'flex-start',
+            justifyContent: 'center',
+            backgroundColor: '#ADFF00', // Neon Green
+            padding: '80px',
+            border: '24px solid black',
           }}
         >
           {/* Top Label */}
-          <div style={{
-            color: '#ADFF2F',
-            fontSize: 24,
-            fontFamily: 'monospace',
-            marginBottom: 40,
-            letterSpacing: '0.2em'
-          }}>
-            {collection?.videoIds?.length || 5} VIDEOS • VOXCRY.COM
-          </div>
-
-          {/* Main Title */}
           <div
             style={{
-              fontSize: 80,
+              backgroundColor: 'black',
+              color: '#ADFF00',
+              padding: '8px 24px',
+              fontSize: 28,
               fontWeight: 900,
-              color: 'white',
+              marginBottom: 40,
               textTransform: 'uppercase',
+              letterSpacing: '-0.05em',
               fontStyle: 'italic',
-              lineHeight: 1.1,
-              maxWidth: '900px',
             }}
           >
-            {collection?.title || 'NEW COLLECTION'}
+            VOXCRY_ARCHIVE
           </div>
 
+          {/* Title */}
+          <h1
+            style={{
+              fontSize: 90,
+              fontWeight: 900,
+              color: 'black',
+              lineHeight: 0.9,
+              textTransform: 'uppercase',
+              fontStyle: 'italic',
+              margin: 0,
+              padding: 0,
+              letterSpacing: '-0.05em',
+            }}
+          >
+            {collection?.title || 'TikTok Pack'}
+          </h1>
+
           {/* Description */}
-          <div style={{
-            marginTop: 40,
-            fontSize: 32,
-            color: '#A1A1AA',
-            maxWidth: '800px',
-          }}>
+          <p
+            style={{
+              fontSize: 32,
+              color: 'black',
+              fontWeight: 600,
+              marginTop: 30,
+              maxWidth: '900px',
+              lineHeight: 1.2,
+            }}
+          >
             {collection?.description?.substring(0, 100)}...
+          </p>
+
+          {/* Footer Branding */}
+          <div
+            style={{
+              display: 'flex',
+              marginTop: 'auto',
+              width: '100%',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                fontSize: 24,
+                fontWeight: 900,
+                backgroundColor: 'white',
+                padding: '12px 24px',
+                border: '4px solid black',
+                boxShadow: '8px 8px 0px 0px black',
+              }}
+            >
+              OPEN_COLLECTION →
+            </div>
+            
+            <div style={{ fontSize: 24, fontWeight: 900, color: 'black' }}>
+              VOXCRY.COM
+            </div>
           </div>
         </div>
-      </div>
-    ),
-    {
-      ...size,
-    }
-  );
+      ),
+      {
+        ...size,
+      }
+    );
+  } catch (error) {
+    // Fallback if fetch fails
+    return new ImageResponse(
+      (
+        <div style={{ width: '100%', height: '100%', backgroundColor: 'black', color: '#ADFF00', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 100, fontWeight: 900 }}>
+          VOXCRY
+        </div>
+      ),
+      { ...size }
+    );
+  }
 }
