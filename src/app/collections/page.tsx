@@ -44,14 +44,15 @@ export default function CollectionsPage() {
 
     const url = `${window.location.origin}/collection/${collection.slug}`;
     const title = collection.title;
-
+    const shareText = `Check out this collection: ${title}\n${url}`;
     // 1. Try Native Web Share API (Works on Mobile & some Desktop Browsers)
     if (navigator.share) {
       try {
         await navigator.share({
           title: title,
-          text: `Check out this TikTok pack: ${title}`,
-          url: url,
+          text:  shareText,
+          //text: `Check out this TikTok pack: ${title}`,
+          //url: url,
         });
         return; 
       } catch (err) {
