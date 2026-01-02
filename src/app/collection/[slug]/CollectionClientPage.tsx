@@ -101,8 +101,8 @@ export default function CollectionClientPage({ params }: { params: Promise<{ slu
 
         {/* FOOTER */}
         <div className="mt-20 pt-10 border-t-4 border-black text-center">
-          <Link href="/" className="bg-[#ADFF2F] text-black px-10 py-5 font-black uppercase italic hover:scale-105 transition-transform inline-block text-xl border-4 border-black">
-            RETURN_TO_FEED
+          <Link href="/collections" className="bg-[#ADFF2F] text-black px-10 py-5 font-black uppercase italic hover:scale-105 transition-transform inline-block text-xl border-4 border-black">
+            RETURN_TO_COLLECTIONS
           </Link>
         </div>
       </div>
