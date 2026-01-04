@@ -1,4 +1,3 @@
-// src/app/api/collections/route.ts
 import { NextResponse } from "next/server";
 import { kv } from "@vercel/kv";
 
@@ -15,29 +14,47 @@ type Collection = {
   added_at: number;
 };
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     if (!hasKV()) {
       return NextResponse.json({ ok: false, error: "kv_not_configured" }, { status: 500 });
     }
 
-    // Pull latest slugs from your sorted set (newest first)
-    // NOTE: Vercel KV zrange supports { rev: true } for reverse order.
-    const slugs =
-      (await kv.zrange<string[]>("collections:z", 0, 50, { rev: true })) || [];
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "10");
 
-    // Hydrate each slug into the full collection object
+    const start = (page - 1) * limit;
+    const stop = start + limit - 1;
+
+    // Fetch slugs and total count in parallel
+    const [slugs, totalItems] = await Promise.all([
+      kv.zrange<string[]>("collections:z", start, stop, { rev: true }),
+      kv.zcard("collections:z")
+    ]);
+
+    const safeSlugs = slugs || [];
+
+    // Hydrate objects and filter for PUBLISHED only
     const items = (
       await Promise.all(
-        slugs.map(async (slug) => {
+        safeSlugs.map(async (slug) => {
           const key = `collection:base:${String(slug).trim().toLowerCase()}`;
-          const c = await kv.get<Collection>(key);
-          return c?.status === "PUBLISHED" ? c : null;
+          const data = await kv.get<Collection>(key);
+          return data && data.status === "PUBLISHED" ? data : null;
         })
       )
-    ).filter(Boolean) as Collection[];
+    ).filter((c): c is Collection => c !== null);
 
-    return NextResponse.json({ ok: true, data: items }, { status: 200 });
+    // Accurate hasMore: Have we processed fewer slugs than the total existing?
+    const hasMore = (start + safeSlugs.length) < totalItems;
+
+    return NextResponse.json({ 
+      ok: true, 
+      data: items,
+      hasMore: hasMore 
+    }, { status: 200 });
+
   } catch (err) {
     console.error("Collections API Error:", err);
     return NextResponse.json({ ok: false, error: "internal_server_error" }, { status: 500 });
