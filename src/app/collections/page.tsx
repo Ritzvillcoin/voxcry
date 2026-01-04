@@ -112,7 +112,7 @@ export default function CollectionsPage() {
           </Link>
         </div>
 
-        <h1 className="text-5xl font-black uppercase italic tracking-tighter">Collections</h1>
+        <h1 className="text-5xl font-black uppercase italic tracking-tighter">PLAYLISTS</h1>
 
         {loading ? (
           <p className="mt-6 text-zinc-400 font-mono animate-pulse uppercase text-sm tracking-widest">
@@ -128,13 +128,13 @@ export default function CollectionsPage() {
               >
                 <div className="flex justify-between items-start">
                   <div className="text-xs font-mono uppercase tracking-widest opacity-70">
-                    {c.videoIds?.length || 0} VIDEOS • ARCHIVE_ENTRY
+                    {c.videoIds?.length || 0} VIDEOS • PLAYLIST
                   </div>
                   <button
                     onClick={(e) => handleShare(e, c)}
                     className="z-20 border-2 border-current px-3 py-1 text-[10px] font-black uppercase hover:bg-white hover:text-black transition-colors"
                   >
-                    {copiedSlug === c.slug ? "COPIED!" : "SHARE_LINK"}
+                    {copiedSlug === c.slug ? "COPIED!" : "SHARE"}
                   </button>
                 </div>
                 <div className="mt-4 text-3xl font-black uppercase italic leading-none tracking-tight">
@@ -161,10 +161,10 @@ export default function CollectionsPage() {
                 !hasMore && items.length > 0 && (
                   <div className="text-center">
                     <div className="text-zinc-500 font-mono text-[10px] tracking-widest uppercase mb-2">
-                      {"/// ARCHIVE_COMPLETE ///"}
+                      {"/// PLAYLIST_COMPLETE ///"}
                     </div>
                     <div className="text-zinc-700 text-[9px] uppercase tracking-tighter">
-                      All {items.length} collections synchronized successfully.
+                      All {items.length} playlists synchronized successfully.
                     </div>
                   </div>
                 )

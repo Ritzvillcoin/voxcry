@@ -261,14 +261,14 @@ function FeedContent({ limit = 50, openLabel = "VIEW ON TIKTOK" }: HirePassFeedP
                   onClick={() => vote("hire")}
                   className="bg-[#ADFF00] border-[4px] border-black py-4 text-2xl font-black uppercase italic shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all"
                 >
-                  Viral 🔥
+                  Hit 🔥
                 </button>
                 <button
                   disabled={busy}
                   onClick={() => vote("pass")}
                   className="bg-zinc-200 border-[4px] border-black py-4 text-2xl font-black uppercase italic shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all text-zinc-500"
                 >
-                  Flop 🧊
+                  Noise 🌀
                 </button>
               </div>
             ) : (

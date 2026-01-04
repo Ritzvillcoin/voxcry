@@ -75,7 +75,7 @@ export default async function SharePage({ params }: { params: Promise<{ handle: 
         border-[3px] border-black px-4 py-1 text-xl font-black uppercase italic shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mb-2
         ${isViral ? 'bg-[#ADFF00]' : 'bg-zinc-200'}
       `}>
-        {isViral ? 'VIRAL 🔥' : 'FLOP 🧊'}
+        {isViral ? 'Hit 🔥' : 'Noise 🌀'}
       </div>
       <div className="flex gap-2 items-baseline">
         <span className="text-[10px] font-black uppercase text-zinc-400">Scouts:</span>

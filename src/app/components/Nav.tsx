@@ -24,7 +24,7 @@ export default function Nav() {
             href="/collections"
             className="bg-black text-white border-[2px] md:border-[3px] border-black px-2 md:px-4 py-1.5 md:py-2 font-black text-[10px] md:text-xs uppercase italic shadow-[2px_2px_0px_0px_rgba(255,255,255,0.4)] md:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.4)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all"
           >
-            Collections
+            Playlists
           </Link>
           
           <Link 

@@ -56,7 +56,7 @@ export default async function FeaturedCollection() {
             </p>
             
             <div className="mt-10 flex items-center text-[#ADFF2F] font-black uppercase italic text-xl">
-              OPEN_PACK 
+              OPEN_PLAYLIST 
               <span className="ml-4 transition-transform group-hover:translate-x-3">→</span>
             </div>
           </div>

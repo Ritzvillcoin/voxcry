@@ -9,6 +9,7 @@ type Body = {
   adminToken: string;
   title: string;
   description: string;
+  category: string;
   videoIds: string[];
   slug: string;
 };
@@ -17,18 +18,11 @@ type CollectionData = {
   slug: string;
   title: string;
   description: string;
+  category: string;
   videoIds: string[];
   added_at: number;
   status: "PUBLISHED" | "DRAFT";
 };
-
-function normalizeId(id: string) {
-  return String(id || "").trim();
-}
-
-function normalizeSlug(slug: string) {
-  return String(slug || "").trim().toLowerCase();
-}
 
 export async function POST(req: Request) {
   if (!hasKV()) {
@@ -37,93 +31,71 @@ export async function POST(req: Request) {
 
   const body = (await req.json()) as Partial<Body>;
 
-  // 1) Simple Admin Auth
+  // 1) Auth
   if (!process.env.ADMIN_TOKEN || body.adminToken !== process.env.ADMIN_TOKEN) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
 
-  // 2) Validation + normalization
+  // 2) Data Normalization
   const title = String(body.title || "").trim();
   const description = String(body.description || "").trim();
-  const slug = normalizeSlug(String(body.slug || ""));
+  const category = String(body.category || "social-intelligence").trim();
+  const slug = String(body.slug || "").trim().toLowerCase();
   const videoIdsRaw = Array.isArray(body.videoIds) ? body.videoIds : [];
-  const videoIds = videoIdsRaw.map(normalizeId).filter(Boolean);
+  const videoIds = videoIdsRaw.map(id => String(id).trim()).filter(Boolean);
 
   if (!title || !slug || videoIds.length < 5) {
-    return NextResponse.json(
-      { ok: false, error: "missing_fields_or_insufficient_videos" },
-      { status: 400 }
-    );
-  }
-
-  // 3) Block duplicates within this submission
-  const seen = new Set<string>();
-  const localDupes: string[] = [];
-  for (const id of videoIds) {
-    if (seen.has(id)) localDupes.push(id);
-    seen.add(id);
-  }
-  if (localDupes.length) {
-    return NextResponse.json(
-      { ok: false, error: "duplicate_in_submission", duplicates: Array.from(new Set(localDupes)) },
-      { status: 400 }
-    );
+    return NextResponse.json({ ok: false, error: "invalid_data" }, { status: 400 });
   }
 
   const now = Math.floor(Date.now() / 1000);
 
   try {
-    // 4) Block duplicates already used anywhere on VoxCry
-    // Index key: video:used:<videoId> -> <slug>
+    // 3) Global Video Deduplication Check
     const checks = await Promise.all(
       videoIds.map(async (id) => {
         const usedBy = await kv.get<string>(`video:used:${id}`);
-        return { id, usedBy: usedBy || null };
+        return { id, usedBy };
       })
     );
 
-    const collisions = checks.filter((x) => x.usedBy);
+    const collisions = checks.filter(x => x.usedBy);
     if (collisions.length) {
-      return NextResponse.json(
-        { ok: false, error: "duplicate_videos", collisions },
-        { status: 409 }
-      );
+      return NextResponse.json({ ok: false, error: "video_already_in_archive", collisions }, { status: 409 });
     }
 
-    // Optional: prevent overwriting an existing collection slug
+    // 4) Slug Deduplication
     const existing = await kv.get<CollectionData>(`collection:base:${slug}`);
     if (existing) {
-      return NextResponse.json(
-        { ok: false, error: "slug_already_exists", slug },
-        { status: 409 }
-      );
+      return NextResponse.json({ ok: false, error: "slug_taken" }, { status: 409 });
     }
 
-    // 5) Write collection
+    // 5) Build Collection Object
     const collectionData: CollectionData = {
       slug,
       title,
       description,
+      category,
       videoIds,
       added_at: now,
       status: "PUBLISHED",
     };
 
-    await kv.set(`collection:base:${slug}`, collectionData);
+    // 6) ATOMIC PERSISTENCE
+    await Promise.all([
+      // Store main data
+      kv.set(`collection:base:${slug}`, collectionData),
+      // Add to main chronological index
+      kv.zadd("collections:z", { score: now, member: slug }),
+      // Add to category-specific set for filtering
+      kv.sadd(`collections:category:${category}`, slug),
+      // Mark videos as indexed
+      ...videoIds.map(id => kv.set(`video:used:${id}`, slug))
+    ]);
 
-    // 6) Add to index
-    await kv.zadd("collections:z", { score: now, member: slug });
-
-    // 7) Mark each video as used by this collection
-    await Promise.all(videoIds.map((id) => kv.set(`video:used:${id}`, slug)));
-
-    return NextResponse.json(
-      { ok: true, slug, title, added_at: now },
-      { status: 200 }
-    );
+    return NextResponse.json({ ok: true, slug, category, status: "INDEXED" });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "kv_write_error";
-    console.error("ADMIN_WRITE_ERROR:", message);
-    return NextResponse.json({ ok: false, error: message }, { status: 500 });
+    console.error("AUDIT_PERSIST_ERROR:", error);
+    return NextResponse.json({ ok: false, error: "database_error" }, { status: 500 });
   }
 }

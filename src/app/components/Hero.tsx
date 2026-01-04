@@ -11,17 +11,17 @@ export default function Hero() {
 
       <h1 className="mx-auto max-w-4xl text-5xl font-black leading-none md:text-8xl uppercase italic tracking-tighter text-white">
         <span className="inline-block bg-[#ADFF00] text-black px-4 py-1 border-[4px] border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] rotate-2 mr-2">
-          Viral 🔥
+          Hit 🔥
         </span>
         <span className="block md:inline mt-4 md:mt-0"> OR </span>
         <span className="inline-block bg-white text-black px-4 py-1 border-[4px] border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] -rotate-2 ml-2">
-          Flop 🧊
+          Noise 🌀
         </span>
       </h1>
 
       <div className="mx-auto mt-12 max-w-2xl border-[4px] border-black bg-black p-6 shadow-[10px_10px_0px_0px_rgba(173,255,0,0.3)]">
         <p className="text-lg md:text-xl font-bold leading-relaxed text-[#ADFF00] uppercase italic">
-         For You feelings, filed.
+         For your life, architected.
         </p>
       </div>
 
