@@ -15,6 +15,7 @@ type Collection = {
 };
 
 export async function GET(request: Request) {
+  //await new Promise(resolve => setTimeout(resolve, 1500));
   try {
     if (!hasKV()) {
       return NextResponse.json({ ok: false, error: "kv_not_configured" }, { status: 500 });

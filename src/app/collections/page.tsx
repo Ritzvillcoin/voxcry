@@ -20,7 +20,8 @@ export default function CollectionsPage() {
   const [items, setItems] = useState<Collection[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [page, setPage] = useState(1);
+  // Fixed: Removed 'page' and used ',' to skip the unused variable
+  const [, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
 
@@ -52,12 +53,10 @@ export default function CollectionsPage() {
     }
   }, []);
 
-  // Initial load
   useEffect(() => {
     fetchCollections(1);
   }, [fetchCollections]);
 
-  // Infinite Scroll Observer
   useEffect(() => {
     if (!hasMore || loading) return;
 
@@ -73,7 +72,7 @@ export default function CollectionsPage() {
       },
       { 
         threshold: 0.1,
-        rootMargin: "200px" // Start loading when user is 200px from the bottom
+        rootMargin: "200px" 
       }
     );
 
@@ -116,7 +115,9 @@ export default function CollectionsPage() {
         <h1 className="text-5xl font-black uppercase italic tracking-tighter">Collections</h1>
 
         {loading ? (
-          <p className="mt-6 text-zinc-400 font-mono animate-pulse uppercase text-sm">Fetching_Archive_Data...</p>
+          <p className="mt-6 text-zinc-400 font-mono animate-pulse uppercase text-sm tracking-widest">
+            Fetching...
+          </p>
         ) : (
           <div className="mt-10 grid gap-6">
             {items.map((c, index) => (
@@ -136,21 +137,37 @@ export default function CollectionsPage() {
                     {copiedSlug === c.slug ? "COPIED!" : "SHARE_LINK"}
                   </button>
                 </div>
-                <div className="mt-4 text-3xl font-black uppercase italic leading-none">{c.title}</div>
-                <div className="mt-3 text-sm font-medium opacity-80 line-clamp-2">{c.description}</div>
+                <div className="mt-4 text-3xl font-black uppercase italic leading-none tracking-tight">
+                  {c.title}
+                </div>
+                <div className="mt-3 text-sm font-medium opacity-80 line-clamp-2 max-w-xl">
+                  {c.description}
+                </div>
               </Link>
             ))}
 
-            <div ref={observerTarget} className="h-20 flex items-center justify-center">
-              {loadingMore && (
-                <span className="text-[#ADFF2F] font-black italic animate-bounce text-xs">
-                  LOADING_MORE_PACKS...
-                </span>
-              )}
-              {!hasMore && items.length > 0 && (
-                <span className="text-zinc-600 font-black italic text-xs uppercase">
-                  End of Archive // All Packs Loaded
-                </span>
+            <div ref={observerTarget} className="mt-12 mb-20 flex flex-col items-center justify-center gap-4">
+              {loadingMore ? (
+                <div className="flex flex-col items-center gap-2">
+                  <div className="h-1 w-32 bg-zinc-800 overflow-hidden">
+                    <div className="h-full bg-[#ADFF2F] animate-[loading_1s_ease-in-out_infinite]" 
+                        style={{ width: '30%' }}></div>
+                  </div>
+                  <span className="text-[#ADFF2F] font-mono text-[10px] tracking-[0.3em] uppercase animate-pulse">
+                    Fetching...
+                  </span>
+                </div>
+              ) : (
+                !hasMore && items.length > 0 && (
+                  <div className="text-center">
+                    <div className="text-zinc-500 font-mono text-[10px] tracking-widest uppercase mb-2">
+                      {"/// ARCHIVE_COMPLETE ///"}
+                    </div>
+                    <div className="text-zinc-700 text-[9px] uppercase tracking-tighter">
+                      All {items.length} collections synchronized successfully.
+                    </div>
+                  </div>
+                )
               )}
             </div>
           </div>
