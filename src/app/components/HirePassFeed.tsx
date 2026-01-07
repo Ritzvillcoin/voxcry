@@ -189,7 +189,7 @@ function FeedContent({ limit = 50, openLabel = "VIEW ON TIKTOK" }: HirePassFeedP
   if (loading)
     return (
       <div className="text-center py-20 font-black italic uppercase animate-pulse">
-        Scouting...
+        Loading...
       </div>
     );
 
@@ -215,7 +215,7 @@ function FeedContent({ limit = 50, openLabel = "VIEW ON TIKTOK" }: HirePassFeedP
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <div className="bg-black text-white px-3 py-1 text-[10px] font-black uppercase">
-                  {scoutTarget === cleanHandle ? "CHALLENGE MODE ⚔️" : "UGC SCOUT v1.0"}
+                  {scoutTarget === cleanHandle ? "CHALLENGE MODE ⚔️" : "VIBE_CHECK v1.0"}
                 </div>
 
                 {/* ✅ NEW: Skip button (works anytime, no vote required) */}
@@ -281,10 +281,10 @@ function FeedContent({ limit = 50, openLabel = "VIEW ON TIKTOK" }: HirePassFeedP
                     Verdict Locked 🔒
                   </p>
                   <p className="font-black italic text-2xl uppercase leading-none group-hover:text-[#ADFF00] transition-colors">
-                    VIEW SCOUT REPORT
+                    VIEW_VERDICT
                   </p>
                   <p className="text-[10px] font-bold uppercase mt-2 opacity-60">
-                    See the community vibe check
+                    Share the vibe check
                   </p>
                 </Link>
 

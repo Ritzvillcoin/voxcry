@@ -13,12 +13,6 @@ function extractTikTokPostId(tiktokUrl: string) {
   return m?.[2] ?? "";
 }
 
-/**
- * Extracts @handle from common TikTok URL shapes like:
- * - https://www.tiktok.com/@infiniteelliott/video/123...
- * - https://www.tiktok.com/@infiniteelliott/photo/123...
- * Also tolerates extra path/query params.
- */
 function extractTikTokHandle(tiktokUrl: string) {
   const m = (tiktokUrl || "").match(/tiktok\.com\/@([^\/\?\#]+)/i);
   const raw = m?.[1] ?? "";
@@ -28,62 +22,41 @@ function extractTikTokHandle(tiktokUrl: string) {
 const FORMAT_OPTIONS = [
   "POV Skit / Mini Story",
   "Mini Series",
-  "When Christmas exposes the family truth.",
-  "Christmas Propsal Gone Wrong",
   "POV Relatable (Talking-Head Reaction/Meme)",
   "POV relatable relationship humor (curiosity + payoff)",
   "POV Relatable Roleplay (Talking-Head Skit)",
   "POV Relatable (Hot Take Talking-Head)",
   "Lifestyle Montage",
-  "Lifestyle Montage / Good Vibes (Trend Audio + Text)",
-  "Result-first (Before/After)",
   "Tutorial (Step-by-step)",
   "Problem → Solution",
-  "Product demo / Review",
   "Storytime",
   "Talking-Head Intro (Big Text) + Question Prompt Hook",
   "Hot take / Opinion",
   "List / Ranking",
   "Reaction / Stitch",
-  "Challenge / Trend",
   "Text-on-screen montage",
 ] as const;
-
-function normalizeFormat(input: string) {
-  return (input || "").trim().replace(/\s+/g, " ");
-}
 
 export default function AdminAddVideoPage() {
   const [adminToken, setAdminToken] = useState("");
   const [tiktokUrl, setTiktokUrl] = useState("");
   const [format, setFormat] = useState<string>(FORMAT_OPTIONS[0]);
+  
+  // Audit States
+  const [score, setScore] = useState<number>(8);
+  const [summary, setSummary] = useState("");
 
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string>("");
 
   const handle = useMemo(() => extractTikTokHandle(tiktokUrl), [tiktokUrl]);
   const postId = useMemo(() => extractTikTokPostId(tiktokUrl), [tiktokUrl]);
-  const cleanFormat = useMemo(() => normalizeFormat(format), [format]);
 
   async function submit() {
     setMsg("");
-
-    if (!adminToken.trim()) {
-      setMsg("Missing admin token.");
-      return;
-    }
-    if (!tiktokUrl.trim() || !postId) {
-      setMsg("TikTok URL must be a valid post URL: /@handle/(video|photo)/<id>");
-      return;
-    }
-    if (!handle) {
-      setMsg("Could not parse creator handle from the TikTok URL.");
-      return;
-    }
-    if (!cleanFormat) {
-      setMsg("Missing format.");
-      return;
-    }
+    if (!adminToken.trim()) { setMsg("Missing token."); return; }
+    if (!postId) { setMsg("Invalid TikTok URL."); return; }
+    if (!summary.trim()) { setMsg("Please provide an Architect's Verdict."); return; }
 
     setBusy(true);
     try {
@@ -94,110 +67,89 @@ export default function AdminAddVideoPage() {
           adminToken: adminToken.trim(),
           creator_handle: handle,
           tiktok_url: tiktokUrl.trim(),
-          format: cleanFormat, // ✅ NEW
+          format,
+          audit: {
+            score: Number(score),
+            verdict: score >= 6 ? "SIGNAL" : "NOISE",
+            summary: summary.trim(),
+            noiseTax: ((8 - score) / 8) * 100,
+          }
         }),
       });
 
-      const data = (await res.json()) as {
-        ok?: boolean;
-        error?: string;
-        handle?: string;
-        video_id?: string;
-        added_at?: number;
-        format?: string;
-      };
-
+      const data = await res.json();
       if (!res.ok || !data.ok) {
         setMsg(`Error: ${data?.error || res.status}`);
         return;
       }
 
-      setMsg(
-        `✅ Added ${data.handle} video ${data.video_id} | format: ${data.format} (ts=${data.added_at})`
-      );
+      setMsg(`✅ Audit Logged: ${data.handle} | Score: ${score}/8`);
       setTiktokUrl("");
-      // keep last selected format (faster data entry)
+      setSummary(""); 
     } catch (e: unknown) {
-      const message = e instanceof Error ? e.message : "request_failed";
-      setMsg(`Error: ${message}`);
+      setMsg(`Error: ${e instanceof Error ? e.message : "failed"}`);
     } finally {
       setBusy(false);
     }
   }
 
   return (
-    <div className="mx-auto max-w-xl px-4 py-10">
-      <h1 className="text-2xl font-bold text-white">Admin — Add Creator Video</h1>
-      <p className="mt-2 text-sm text-gray-400">
-        Adds creator + newest-first indexes + video record into KV.
-      </p>
+    <div className="mx-auto max-w-xl px-4 py-10 font-mono">
+      <h1 className="text-2xl font-bold text-white uppercase italic">Architect — Log Audit</h1>
+      
+      <div className="mt-6 space-y-4 rounded-xl bg-zinc-900 p-6 border border-white/10 shadow-2xl">
+        <input
+          value={adminToken}
+          onChange={(e) => setAdminToken(e.target.value)}
+          placeholder="ADMIN_TOKEN"
+          type="password"
+          className="w-full rounded bg-zinc-800 p-2 text-white border border-white/10 outline-none focus:border-white/30"
+        />
 
-      <div className="mt-6 space-y-4 rounded-2xl bg-zinc-900/70 p-4 ring-1 ring-white/10">
-        <label className="block">
-          <div className="text-xs text-gray-400">Admin token</div>
-          <input
-            value={adminToken}
-            onChange={(e) => setAdminToken(e.target.value)}
-            placeholder="ADMIN_TOKEN"
-            type="password"
-            className="mt-2 w-full rounded-xl bg-zinc-800 px-3 py-2 text-white outline-none ring-1 ring-white/10"
-          />
-        </label>
+        <input
+          value={tiktokUrl}
+          onChange={(e) => setTiktokUrl(e.target.value)}
+          placeholder="TikTok Post URL"
+          className="w-full rounded bg-zinc-800 p-2 text-white border border-white/10 outline-none"
+        />
 
-        <label className="block">
-          <div className="text-xs text-gray-400">TikTok video URL</div>
-          <input
-            value={tiktokUrl}
-            onChange={(e) => setTiktokUrl(e.target.value)}
-            placeholder="https://www.tiktok.com/@infiniteelliott/video/7584179042291698999"
-            className="mt-2 w-full rounded-xl bg-zinc-800 px-3 py-2 text-white outline-none ring-1 ring-white/10"
-          />
-          <div className="mt-2 text-xs text-gray-500">
-            Parsed: <span className="text-gray-300">{handle || "—"}</span>
-            {"  "} | post_id: <span className="text-gray-300">{postId || "—"}</span>
-          </div>
-        </label>
-
-        {/* ✅ NEW: Format */}
-        <label className="block">
-          <div className="text-xs text-gray-400">Format</div>
+        <div className="grid grid-cols-2 gap-4">
           <select
             value={format}
             onChange={(e) => setFormat(e.target.value)}
-            className="mt-2 w-full rounded-xl bg-zinc-800 px-3 py-2 text-white outline-none ring-1 ring-white/10"
+            className="w-full rounded bg-zinc-800 p-2 text-white border border-white/10"
           >
-            {FORMAT_OPTIONS.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
-            <option value="Other">Other</option>
+            {FORMAT_OPTIONS.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
           </select>
 
-          {/* Optional: allow custom format when "Other" selected */}
-          {format === "Other" ? (
-            <input
-              value={cleanFormat === "Other" ? "" : cleanFormat}
-              onChange={(e) => setFormat(e.target.value)}
-              placeholder="Type a custom format (e.g., Myth-bust)"
-              className="mt-2 w-full rounded-xl bg-zinc-800 px-3 py-2 text-white outline-none ring-1 ring-white/10"
-            />
-          ) : null}
-        </label>
+          <select
+            value={score}
+            onChange={(e) => setScore(Number(e.target.value))}
+            className="w-full rounded bg-zinc-800 p-2 text-white border border-white/10"
+          >
+            {[8,7,6,5,4,3,2,1,0].map(n => <option key={n} value={n}>Score: {n}/8</option>)}
+          </select>
+        </div>
+
+        <textarea
+          value={summary}
+          onChange={(e) => setSummary(e.target.value)}
+          placeholder="Architect's Verdict Summary (What makes this a Hit or Noise?)"
+          rows={5}
+          className="w-full rounded bg-zinc-800 p-3 text-white border border-white/10 resize-none outline-none focus:border-white/30"
+        />
 
         <button
           disabled={busy}
           onClick={submit}
-          className="w-full rounded-2xl bg-white py-3 font-bold text-black disabled:opacity-60"
+          className={`w-full rounded py-4 font-black uppercase tracking-widest transition-all ${
+            score >= 6 ? "bg-green-500 text-black" : "bg-red-600 text-white"
+          } disabled:opacity-50`}
         >
-          {busy ? "Saving…" : "Add to KV"}
+          {busy ? "COMMITTING..." : "Commit Audit"}
         </button>
 
-        {msg ? (
-          <div className="rounded-xl bg-black/30 p-3 text-sm text-gray-200 ring-1 ring-white/10">
-            {msg}
-          </div>
-        ) : null}
+        {msg && <div className="text-center text-xs text-gray-400 bg-black/40 p-2 rounded border border-white/5">{msg}</div>}
       </div>
     </div>
   );
