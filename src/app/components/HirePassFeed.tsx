@@ -247,7 +247,7 @@ function FeedContent({ limit = 50, openLabel = "VIEW ON TIKTOK" }: HirePassFeedP
               <span className="text-[12px] font-black uppercase text-black">{currentFormat}</span>
             </div>
 
-            <div className="border-[4px] border-black bg-zinc-100 h-[460px] w-full overflow-hidden relative mb-6">
+            <div className="border-[4px] border-black bg-zinc-100 h-[420px] w-full overflow-hidden relative mb-6">
               <TikTokEmbed
                 key={currentVideoId ?? current.tiktok_link}
                 videoUrl={current.tiktok_link}
@@ -255,46 +255,45 @@ function FeedContent({ limit = 50, openLabel = "VIEW ON TIKTOK" }: HirePassFeedP
             </div>
 
             {!result ? (
-              <div className="grid grid-cols-2 gap-4">
-                <button
-                  disabled={busy}
-                  onClick={() => vote("hire")}
-                  className="bg-[#ADFF00] border-[4px] border-black py-4 text-2xl font-black uppercase italic shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all"
-                >
-                  Hit 🔥
-                </button>
-                <button
-                  disabled={busy}
-                  onClick={() => vote("pass")}
-                  className="bg-zinc-200 border-[4px] border-black py-4 text-2xl font-black uppercase italic shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all text-zinc-500"
-                >
-                  Noise 🌀
-                </button>
-              </div>
+             <div className="grid grid-cols-2 gap-3 max-w-xs"> 
+  <button
+    disabled={busy}
+    onClick={() => vote("hire")}
+    className="bg-[#ADFF00] border-[2px] border-black py-2 text-lg font-black uppercase italic shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px] transition-all"
+  >
+    Hit 🔥
+  </button>
+  <button
+    disabled={busy}
+    onClick={() => vote("pass")}
+    className="bg-zinc-200 border-[2px] border-black py-2 text-lg font-black uppercase italic shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px] transition-all text-zinc-500"
+  >
+    Noise 🌀
+  </button>
+</div>
             ) : (
               <div className="space-y-4 animate-in fade-in zoom-in duration-300">
                 <Link
-                  href={`/${cleanHandle}`}
-                  className="group block border-[4px] border-black bg-white p-6 text-center shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
-                >
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1 text-zinc-400 leading-none">
-                    Verdict Locked 🔒
-                  </p>
-                  <p className="font-black italic text-2xl uppercase leading-none group-hover:text-[#ADFF00] transition-colors">
-                    VIEW_VERDICT
-                  </p>
-                  <p className="text-[10px] font-bold uppercase mt-2 opacity-60">
-                    Share the vibe check
-                  </p>
-                </Link>
+  href={`/${cleanHandle}`}
+  className="group block border-[2px] border-black bg-white p-4 text-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
+>
+  <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1 text-zinc-400 leading-none">
+    Verdict Locked 🔒
+  </p>
+  <p className="font-black italic text-lg uppercase leading-none group-hover:text-[#ADFF00] transition-colors">
+    VIEW_VERDICT
+  </p>
+  {/*<p className="text-[10px] font-bold uppercase mt-1 opacity-60">
+    Share the vibe check
+  </p>*/}
+</Link>
 
-                <button
-                  onClick={shareResult}
-                  className="w-full bg-[#ADFF00] border-[4px] border-black py-4 font-black uppercase italic text-xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all"
-                >
-                  SEND VIBE CHECK ⚡
-                </button>
-
+<button
+  onClick={shareResult}
+  className="w-full mt-3 bg-[#ADFF00] border-[2px] border-black py-2 font-black uppercase italic text-lg shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px] transition-all"
+>
+  SHARE THE VIBE CHECK ⚡
+</button>
                 {/* ✅ Removed: "Next Candidate →" button */}
               </div>
             )}

@@ -67,7 +67,7 @@ export default async function FeaturedCollection() {
               {latest.blog_title}
             </h2>
 
-            <p className="text-zinc-400 mt-6 text-lg max-w-xl font-medium">
+            <p className="text-zinc-400 mt-6 text-lg max-w-xl font-medium line-clamp-2 overflow-hidden">
               {summary || "Read the full audit on VoxCry."}
             </p>
 

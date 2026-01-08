@@ -36,7 +36,7 @@ export default function Footer() {
             <p className="text-[10px] font-black uppercase text-zinc-400">
               © {new Date().getFullYear()} Voxcry
               <br />
-              <span className="text-[#ADFF00]">Built for the viral age</span>
+              <span className="text-[#ADFF00]">Beyond the viral age</span>
             </p>
           </div>
         </div>
