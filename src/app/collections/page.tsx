@@ -108,7 +108,7 @@ export default function CollectionsPage() {
             href="/"
             className="inline-flex items-center gap-2 border-4 border-[#ADFF2F] px-5 py-3 font-black uppercase tracking-tight hover:bg-[#ADFF2F] hover:text-black transition"
           >
-            ← Back to Home
+            ← VOXCRY
           </Link>
         </div>
 

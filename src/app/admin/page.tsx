@@ -41,22 +41,37 @@ export default function AdminAddVideoPage() {
   const [adminToken, setAdminToken] = useState("");
   const [tiktokUrl, setTiktokUrl] = useState("");
   const [format, setFormat] = useState<string>(FORMAT_OPTIONS[0]);
-  
+
   // Audit States
   const [score, setScore] = useState<number>(8);
-  const [summary, setSummary] = useState("");
+
+  // Mini-blog fields (NEW)
+  const [blogTitle, setBlogTitle] = useState("");
+  const [blogSummary, setBlogSummary] = useState(""); // short: 1–3 lines
+  const [blogBody, setBlogBody] = useState("");       // optional: longer notes (plain text/markdown)
+
+  // Optional: assign to pack later or now (NEW)
+  const [packSlug, setPackSlug] = useState("");       // e.g. "texting-anxiety"
+  const [packTitle, setPackTitle] = useState("");     // e.g. "Texting Anxiety"
 
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string>("");
+  const [auditUrl, setAuditUrl] = useState<string>("");
 
   const handle = useMemo(() => extractTikTokHandle(tiktokUrl), [tiktokUrl]);
   const postId = useMemo(() => extractTikTokPostId(tiktokUrl), [tiktokUrl]);
 
+  // Recommend: slug = postId (stable + unique)
+  const slug = useMemo(() => (postId ? postId : ""), [postId]);
+
   async function submit() {
     setMsg("");
+    setAuditUrl("");
+
     if (!adminToken.trim()) { setMsg("Missing token."); return; }
     if (!postId) { setMsg("Invalid TikTok URL."); return; }
-    if (!summary.trim()) { setMsg("Please provide an Architect's Verdict."); return; }
+    if (!blogTitle.trim()) { setMsg("Please provide a Blog Title."); return; }
+    if (!blogSummary.trim()) { setMsg("Please provide a short Blog Summary."); return; }
 
     setBusy(true);
     try {
@@ -65,15 +80,21 @@ export default function AdminAddVideoPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           adminToken: adminToken.trim(),
+          slug, // audit slug
           creator_handle: handle,
           tiktok_url: tiktokUrl.trim(),
           format,
+          pack_slug: packSlug.trim() || undefined,
+          pack_title: packTitle.trim() || undefined,
           audit: {
             score: Number(score),
             verdict: score >= 6 ? "SIGNAL" : "NOISE",
-            summary: summary.trim(),
-            noiseTax: ((8 - score) / 8) * 100,
-          }
+          },
+          blog: {
+            title: blogTitle.trim(),
+            summary: blogSummary.trim(),
+            body: blogBody.trim(), // optional
+          },
         }),
       });
 
@@ -83,9 +104,14 @@ export default function AdminAddVideoPage() {
         return;
       }
 
-      setMsg(`✅ Audit Logged: ${data.handle} | Score: ${score}/8`);
+      setMsg(`✅ Audit Published: ${data.slug} | Score: ${score}/8`);
+      setAuditUrl(data.audit_url || "");
+
+      // reset (keep pack slug if you want)
       setTiktokUrl("");
-      setSummary(""); 
+      setBlogTitle("");
+      setBlogSummary("");
+      setBlogBody("");
     } catch (e: unknown) {
       setMsg(`Error: ${e instanceof Error ? e.message : "failed"}`);
     } finally {
@@ -95,8 +121,8 @@ export default function AdminAddVideoPage() {
 
   return (
     <div className="mx-auto max-w-xl px-4 py-10 font-mono">
-      <h1 className="text-2xl font-bold text-white uppercase italic">Architect — Log Audit</h1>
-      
+      <h1 className="text-2xl font-bold text-white uppercase italic">Architect — Publish Audit</h1>
+
       <div className="mt-6 space-y-4 rounded-xl bg-zinc-900 p-6 border border-white/10 shadow-2xl">
         <input
           value={adminToken}
@@ -113,13 +139,20 @@ export default function AdminAddVideoPage() {
           className="w-full rounded bg-zinc-800 p-2 text-white border border-white/10 outline-none"
         />
 
+        <div className="text-xs text-gray-400">
+          Detected: <span className="text-white/80">{handle || "—"}</span>{" "}
+          | PostId/Slug: <span className="text-white/80">{slug || "—"}</span>
+        </div>
+
         <div className="grid grid-cols-2 gap-4">
           <select
             value={format}
             onChange={(e) => setFormat(e.target.value)}
             className="w-full rounded bg-zinc-800 p-2 text-white border border-white/10"
           >
-            {FORMAT_OPTIONS.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
+            {FORMAT_OPTIONS.map((opt) => (
+              <option key={opt} value={opt}>{opt}</option>
+            ))}
           </select>
 
           <select
@@ -127,15 +160,49 @@ export default function AdminAddVideoPage() {
             onChange={(e) => setScore(Number(e.target.value))}
             className="w-full rounded bg-zinc-800 p-2 text-white border border-white/10"
           >
-            {[8,7,6,5,4,3,2,1,0].map(n => <option key={n} value={n}>Score: {n}/8</option>)}
+            {[8,7,6,5,4,3,2,1,0].map(n => (
+              <option key={n} value={n}>Score: {n}/8</option>
+            ))}
           </select>
         </div>
 
+        {/* Pack assignment (optional) */}
+        <div className="grid grid-cols-2 gap-4">
+          <input
+            value={packSlug}
+            onChange={(e) => setPackSlug(e.target.value)}
+            placeholder='pack_slug (optional) e.g. "texting-anxiety"'
+            className="w-full rounded bg-zinc-800 p-2 text-white border border-white/10 outline-none"
+          />
+          <input
+            value={packTitle}
+            onChange={(e) => setPackTitle(e.target.value)}
+            placeholder='pack_title (optional) e.g. "Texting Anxiety"'
+            className="w-full rounded bg-zinc-800 p-2 text-white border border-white/10 outline-none"
+          />
+        </div>
+
+        {/* Mini blog (NEW) */}
+        <input
+          value={blogTitle}
+          onChange={(e) => setBlogTitle(e.target.value)}
+          placeholder="Blog Title (required)"
+          className="w-full rounded bg-zinc-800 p-2 text-white border border-white/10 outline-none focus:border-white/30"
+        />
+
         <textarea
-          value={summary}
-          onChange={(e) => setSummary(e.target.value)}
-          placeholder="Architect's Verdict Summary (What makes this a Hit or Noise?)"
-          rows={5}
+          value={blogSummary}
+          onChange={(e) => setBlogSummary(e.target.value)}
+          placeholder="Blog Summary (required) — 1–3 lines"
+          rows={3}
+          className="w-full rounded bg-zinc-800 p-3 text-white border border-white/10 resize-none outline-none focus:border-white/30"
+        />
+
+        <textarea
+          value={blogBody}
+          onChange={(e) => setBlogBody(e.target.value)}
+          placeholder="Mini blog body (optional) — write like a Medium-style audit. You can use plain text or light markdown."
+          rows={6}
           className="w-full rounded bg-zinc-800 p-3 text-white border border-white/10 resize-none outline-none focus:border-white/30"
         />
 
@@ -146,13 +213,25 @@ export default function AdminAddVideoPage() {
             score >= 6 ? "bg-green-500 text-black" : "bg-red-600 text-white"
           } disabled:opacity-50`}
         >
-          {busy ? "COMMITTING..." : "Commit Audit"}
+          {busy ? "PUBLISHING..." : "Publish Audit"}
         </button>
 
-        {msg && <div className="text-center text-xs text-gray-400 bg-black/40 p-2 rounded border border-white/5">{msg}</div>}
+        {msg && (
+          <div className="text-center text-xs text-gray-300 bg-black/40 p-2 rounded border border-white/5">
+            {msg}
+            {auditUrl && (
+              <div className="mt-2">
+                <a className="underline text-white" href={auditUrl} target="_blank" rel="noreferrer">
+                  Open audit page →
+                </a>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
 }
+
 
 

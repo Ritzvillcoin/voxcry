@@ -4,7 +4,7 @@ import Hero from "./components/Hero";
 import Footer from "./components/Footer";
 import HirePassFeed from "./components/HirePassFeed";
 import SubstackSubscribe from "./components/SubstackSubscribe";
-import FeaturedCollection from "./components/FeaturedCollection";
+import FeaturedLatestAudit from "./components/FeaturedLatestAudit";
 
 export default function Home() {
   // Progress (keep if you want, but it's now framed as curation progress)
@@ -18,7 +18,10 @@ export default function Home() {
       <main>
         {/* Keep your existing hero component (but ideally make Hero playlist-first too) */}
         <Hero />
-
+         <HirePassFeed />
+          <section className="px-4 mt-10 md:mt-14">
+          <FeaturedLatestAudit />
+        </section>
         {/* ✅ PLAYLISTS FIRST */}
         <section className="mx-auto max-w-5xl px-6 pt-10 md:pt-16">
           <div className="border-4 border-black bg-white text-black shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] p-6 md:p-10">
@@ -90,35 +93,9 @@ export default function Home() {
         </section>
 
         {/* ✅ Featured playlists module (kept, moved up) */}
-        <section className="px-4 mt-10 md:mt-14">
-          <FeaturedCollection />
-        </section>
+       
 
-        {/* OPTIONAL: voting feed (secondary) */}
-        <section className="mx-auto max-w-5xl px-6 py-16">
-          <div className="mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-3">
-           <div className="flex flex-col items-center text-center">
-  {/*<div className="text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-500">
-    Optional
-  </div>*/}
-  <h3 className="text-3xl md:text-4xl font-black uppercase italic tracking-tighter">
-    Vote this clip (Hit / Noise)
-  </h3>
-  <p className="mt-2 text-zinc-500 max-w-xl mx-auto">
-    This helps train VoxCry’s taste. But playlists are the main event.
-  </p>
-</div>
-
-            {/*<Link
-              href="/collections"
-              className="inline-flex items-center gap-2 text-black bg-[#ADFF2F] px-6 py-3 font-black uppercase hover:opacity-90 transition active:scale-95 border-4 border-black"
-            >
-              Go back to Playlists →
-            </Link>*/}
-          </div>
-
-          <HirePassFeed />
-        </section>
+        
 
         {/* Newsletter / Subscription */}
         <section className="px-4 border-t border-black/5 pt-24 md:pt-32">
