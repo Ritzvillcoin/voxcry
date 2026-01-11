@@ -110,6 +110,9 @@ export async function generateMetadata(props: unknown): Promise<Metadata> {
     (data.summary || "Video audit + explanation.").trim()
   }`;
 
+  // Facebook needs an absolute URL to the image generator
+  const ogImageUrl = `${baseUrl()}/video/${data.slug}/opengraph-image`;
+
   return {
     title: `${data.blog_title} • VoxCry`,
     description: desc,
@@ -118,6 +121,21 @@ export async function generateMetadata(props: unknown): Promise<Metadata> {
       description: desc,
       url: `/video/${data.slug}`,
       type: "article",
+      siteName: "VoxCry",
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: data.blog_title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${data.blog_title} • VoxCry`,
+      description: desc,
+      images: [ogImageUrl],
     },
   };
 }
