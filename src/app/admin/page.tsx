@@ -21,7 +21,7 @@ function extractTikTokHandle(tiktokUrl: string) {
 
 const FORMAT_OPTIONS = [
   "POV Skit / Mini Story",
-  "Mini Series",
+  "Single Shot Manifesto",
   "POV Relatable (Talking-Head Reaction/Meme)",
   "POV relatable relationship humor (curiosity + payoff)",
   "POV Relatable Roleplay (Talking-Head Skit)",

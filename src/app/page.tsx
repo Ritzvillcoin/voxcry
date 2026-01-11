@@ -8,7 +8,7 @@ import FeaturedLatestAudit from "./components/FeaturedLatestAudit";
 
 export default function Home() {
   // Progress (keep if you want, but it's now framed as curation progress)
-  const currentProgress = 7000;
+  const currentProgress = 9000;
   const goal = 10000000;
   const progressPercent = Math.min(100, (currentProgress / goal) * 100);
 
@@ -182,13 +182,13 @@ export default function Home() {
 
             <Link 
 
-              href="/collections"
+              href="/audits"
 
               className="inline-flex items-center gap-2 bg-black text-white px-8 py-4 font-black uppercase text-lg hover:bg-[#ADFF2F] hover:text-black transition-all active:scale-95 shadow-[8px_8px_0px_#ADFF2F]"
 
             >
 
-              Explore Playlists →
+              Explore Collections →
 
             </Link>
 

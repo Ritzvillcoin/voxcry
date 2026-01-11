@@ -156,7 +156,7 @@ export default async function Page(props: unknown) {
   const hasTable = rows.length > 0;
 
   const packSlug = (data.pack_slug || "").trim();
-  const watchMoreHref = packSlug ? `/collections/${packSlug}` : "/collections";
+  const watchMoreHref = packSlug ? `/audits/${packSlug}` : "/audits";
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-10">
