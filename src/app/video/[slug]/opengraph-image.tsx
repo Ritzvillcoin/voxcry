@@ -7,8 +7,7 @@ export const contentType = 'image/png';
 
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.voxcry.com';
-
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
   try {
     const res = await fetch(`${baseUrl}/api/video/${slug}`);
     const json = await res.json();
